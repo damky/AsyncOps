@@ -5,9 +5,11 @@ import IncidentCard from './IncidentCard'
 
 interface IncidentListProps {
   onView?: (incident: Incident) => void
+  onArchiveChange?: () => void
+  archived?: boolean
 }
 
-const IncidentList = ({ onView }: IncidentListProps) => {
+const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentListProps) => {
   const [incidents, setIncidents] = useState<Incident[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -21,7 +23,7 @@ const IncidentList = ({ onView }: IncidentListProps) => {
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit }
+      const params: any = { page, limit, archived }
       if (statusFilter) params.status = statusFilter
       if (severityFilter) params.severity = severityFilter
       
@@ -37,7 +39,7 @@ const IncidentList = ({ onView }: IncidentListProps) => {
 
   useEffect(() => {
     fetchIncidents()
-  }, [page, statusFilter, severityFilter])
+  }, [page, statusFilter, severityFilter, archived])
 
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
@@ -118,6 +120,8 @@ const IncidentList = ({ onView }: IncidentListProps) => {
               onView={onView}
               onAssignmentChange={fetchIncidents}
               onStatusChange={fetchIncidents}
+              onArchiveChange={onArchiveChange || fetchIncidents}
+              showArchived={archived}
             />
           ))}
           <div style={{

@@ -12,6 +12,7 @@ export interface Incident {
   severity: IncidentSeverity
   status: IncidentStatus
   resolution_notes?: string | null
+  archived: boolean
   created_at: string
   updated_at: string
   resolved_at?: string | null

@@ -10,6 +10,7 @@ const Blockers = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingBlocker, setEditingBlocker] = useState<Blocker | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [showArchived, setShowArchived] = useState(false)
 
   const handleCreate = () => {
     setEditingBlocker(null)
@@ -80,24 +81,41 @@ const Blockers = () => {
           />
         ) : (
           <>
-            <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button
-                onClick={handleCreate}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: '500'
-                }}
-              >
-                + Report Blocker
-              </button>
+            <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={showArchived}
+                  onChange={(e) => {
+                    setShowArchived(e.target.checked)
+                    setRefreshKey(k => k + 1)
+                  }}
+                />
+                <span>View Archived</span>
+              </label>
+              {!showArchived && (
+                <button
+                  onClick={handleCreate}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  + Report Blocker
+                </button>
+              )}
             </div>
-            <BlockerList key={refreshKey} />
+            <BlockerList 
+              key={refreshKey}
+              onArchiveChange={() => setRefreshKey(k => k + 1)}
+              archived={showArchived}
+            />
           </>
         )}
       </main>

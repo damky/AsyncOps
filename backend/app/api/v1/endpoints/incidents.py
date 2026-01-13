@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_, or_
-from app.core.dependencies import get_db, get_current_user
+from app.core.dependencies import get_db, get_current_user, get_current_active_admin
 from app.db.models.user import User
 from app.db.models.incident import Incident
 from app.schemas.incident import (
@@ -66,11 +66,15 @@ async def get_incidents(
     status_filter: Optional[str] = Query(None, alias="status"),
     severity: Optional[str] = Query(None),
     assigned_to_id: Optional[int] = Query(None),
+    archived: Optional[bool] = Query(False),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Get list of incidents with pagination and filtering."""
     query = db.query(Incident)
+    
+    # Filter by archived status (default to False if not specified)
+    query = query.filter(Incident.archived == archived)
     
     # Apply filters
     if status_filter:
@@ -236,3 +240,76 @@ async def assign_incident(
     db.refresh(incident, ["reported_by", "assigned_to"])
     
     return incident
+
+
+@router.patch("/{incident_id}/archive", response_model=IncidentSchema)
+async def archive_incident(
+    incident_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Archive an incident."""
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    
+    if not incident:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Incident not found"
+        )
+    
+    incident.archived = True
+    db.commit()
+    db.refresh(incident)
+    db.refresh(incident, ["reported_by", "assigned_to"])
+    
+    return incident
+
+
+@router.patch("/{incident_id}/unarchive", response_model=IncidentSchema)
+async def unarchive_incident(
+    incident_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Unarchive an incident."""
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    
+    if not incident:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Incident not found"
+        )
+    
+    incident.archived = False
+    db.commit()
+    db.refresh(incident)
+    db.refresh(incident, ["reported_by", "assigned_to"])
+    
+    return incident
+
+
+@router.delete("/{incident_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_incident(
+    incident_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_admin)
+):
+    """Permanently delete an archived incident (admin only)."""
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    
+    if not incident:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Incident not found"
+        )
+    
+    if not incident.archived:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only delete archived incidents"
+        )
+    
+    db.delete(incident)
+    db.commit()
+    
+    return None

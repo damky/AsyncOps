@@ -9,6 +9,7 @@ export interface Blocker {
   impact: string
   status: BlockerStatus
   resolution_notes?: string | null
+  archived: boolean
   related_status_id?: number | null
   related_incident_id?: number | null
   created_at: string

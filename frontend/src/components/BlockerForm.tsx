@@ -26,6 +26,13 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Prevent submission if blocker is archived
+    if (blocker?.archived) {
+      setError('Cannot edit archived blockers. Please unarchive first.')
+      return
+    }
+    
     setError('')
     setLoading(true)
 
@@ -54,8 +61,22 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
       marginBottom: '1rem'
     }}>
       <h2 style={{ marginBottom: '1rem' }}>
-        {blocker ? 'Edit Blocker' : 'Create Blocker'}
+        {blocker ? (blocker.archived ? 'View Archived Blocker' : 'Edit Blocker') : 'Create Blocker'}
       </h2>
+      
+      {blocker?.archived && (
+        <div style={{
+          padding: '0.75rem',
+          marginBottom: '1rem',
+          backgroundColor: '#fff3cd',
+          color: '#856404',
+          borderRadius: '4px',
+          fontSize: '0.875rem',
+          border: '1px solid #ffc107'
+        }}>
+          This blocker is archived and cannot be edited. Unarchive it to make changes.
+        </div>
+      )}
 
       {error && (
         <div style={{
@@ -81,6 +102,7 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
           required
           maxLength={2000}
           rows={4}
+          disabled={blocker?.archived}
           style={{
             width: '100%',
             padding: '0.75rem',
@@ -88,7 +110,9 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
             borderRadius: '4px',
             fontSize: '1rem',
             fontFamily: 'inherit',
-            resize: 'vertical'
+            resize: 'vertical',
+            backgroundColor: blocker?.archived ? '#f5f5f5' : 'white',
+            cursor: blocker?.archived ? 'not-allowed' : 'text'
           }}
         />
       </div>
@@ -104,6 +128,7 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
           required
           maxLength={1000}
           rows={3}
+          disabled={blocker?.archived}
           style={{
             width: '100%',
             padding: '0.75rem',
@@ -111,7 +136,9 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
             borderRadius: '4px',
             fontSize: '1rem',
             fontFamily: 'inherit',
-            resize: 'vertical'
+            resize: 'vertical',
+            backgroundColor: blocker?.archived ? '#f5f5f5' : 'white',
+            cursor: blocker?.archived ? 'not-allowed' : 'text'
           }}
         />
       </div>
@@ -135,18 +162,18 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
         )}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || blocker?.archived}
           style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: '#007bff',
+            backgroundColor: blocker?.archived ? '#6c757d' : '#007bff',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1
+            cursor: (loading || blocker?.archived) ? 'not-allowed' : 'pointer',
+            opacity: (loading || blocker?.archived) ? 0.6 : 1
           }}
         >
-          {loading ? 'Saving...' : blocker ? 'Update' : 'Create'}
+          {loading ? 'Saving...' : blocker?.archived ? 'Archived (Cannot Edit)' : blocker ? 'Update' : 'Create'}
         </button>
       </div>
     </form>

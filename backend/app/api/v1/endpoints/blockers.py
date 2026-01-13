@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from app.core.dependencies import get_db, get_current_user
+from app.core.dependencies import get_db, get_current_user, get_current_active_admin
 from app.db.models.user import User
 from app.db.models.blocker import Blocker
 from app.db.models.status_update import StatusUpdate
@@ -68,11 +68,15 @@ async def get_blockers(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     status_filter: Optional[str] = Query(None, alias="status"),
+    archived: Optional[bool] = Query(False),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Get list of blockers with pagination and filtering."""
     query = db.query(Blocker)
+    
+    # Filter by archived status (default to False if not specified)
+    query = query.filter(Blocker.archived == archived)
     
     # Apply filters
     if status_filter:
@@ -200,3 +204,76 @@ async def resolve_blocker(
     db.refresh(blocker, ["reported_by"])
     
     return blocker
+
+
+@router.patch("/{blocker_id}/archive", response_model=BlockerSchema)
+async def archive_blocker(
+    blocker_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Archive a blocker."""
+    blocker = db.query(Blocker).filter(Blocker.id == blocker_id).first()
+    
+    if not blocker:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Blocker not found"
+        )
+    
+    blocker.archived = True
+    db.commit()
+    db.refresh(blocker)
+    db.refresh(blocker, ["reported_by"])
+    
+    return blocker
+
+
+@router.patch("/{blocker_id}/unarchive", response_model=BlockerSchema)
+async def unarchive_blocker(
+    blocker_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Unarchive a blocker."""
+    blocker = db.query(Blocker).filter(Blocker.id == blocker_id).first()
+    
+    if not blocker:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Blocker not found"
+        )
+    
+    blocker.archived = False
+    db.commit()
+    db.refresh(blocker)
+    db.refresh(blocker, ["reported_by"])
+    
+    return blocker
+
+
+@router.delete("/{blocker_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_blocker(
+    blocker_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_admin)
+):
+    """Permanently delete an archived blocker (admin only)."""
+    blocker = db.query(Blocker).filter(Blocker.id == blocker_id).first()
+    
+    if not blocker:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Blocker not found"
+        )
+    
+    if not blocker.archived:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only delete archived blockers"
+        )
+    
+    db.delete(blocker)
+    db.commit()
+    
+    return None

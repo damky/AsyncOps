@@ -91,6 +91,7 @@ Stores incident reports and their resolution status.
 | severity | VARCHAR(20) | NOT NULL, DEFAULT 'medium' | Severity: 'low', 'medium', 'high', 'critical' |
 | status | VARCHAR(20) | NOT NULL, DEFAULT 'open' | Status: 'open', 'in_progress', 'resolved', 'closed' |
 | resolution_notes | TEXT | | Notes added when resolving |
+| archived | BOOLEAN | NOT NULL, DEFAULT false | Whether the incident is archived |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | Creation timestamp |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | Last update timestamp |
 | resolved_at | TIMESTAMP | | Resolution timestamp (nullable) |
@@ -104,6 +105,7 @@ Stores incident reports and their resolution status.
 - `idx_incidents_assigned_to` on `assigned_to_id`
 - `idx_incidents_status` on `status`
 - `idx_incidents_severity` on `severity`
+- `idx_incidents_archived` on `archived`
 - `idx_incidents_created_at` on `created_at DESC`
 - Composite index: `idx_incidents_status_severity` on `(status, severity)`
 
@@ -127,6 +129,7 @@ Stores blockers that are preventing progress.
 | impact | TEXT | NOT NULL | Impact of the blocker |
 | status | VARCHAR(20) | NOT NULL, DEFAULT 'active' | Status: 'active', 'resolved' |
 | resolution_notes | TEXT | | Notes added when resolving |
+| archived | BOOLEAN | NOT NULL, DEFAULT false | Whether the blocker is archived |
 | related_status_id | INTEGER | FK → status_updates.id | Related status update (nullable) |
 | related_incident_id | INTEGER | FK → incidents.id | Related incident (nullable) |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | Creation timestamp |
@@ -141,6 +144,7 @@ Stores blockers that are preventing progress.
 **Indexes**:
 - `idx_blockers_reported_by` on `reported_by_id`
 - `idx_blockers_status` on `status`
+- `idx_blockers_archived` on `archived`
 - `idx_blockers_created_at` on `created_at DESC`
 - `idx_blockers_related_status` on `related_status_id`
 - `idx_blockers_related_incident` on `related_incident_id`
@@ -396,10 +400,14 @@ Optional seed data for development/testing:
 - Daily summaries: Keep indefinitely (historical record)
 - Audit logs: Keep indefinitely (audit requirement)
 
-### Archiving Strategy (Future)
-- Add `archived_at` timestamp column to relevant tables
-- Archive old records via background job
-- Archived records excluded from default queries but still accessible
+### Archiving Strategy (Implemented)
+- `archived` boolean field added to `incidents` and `blockers` tables
+- Archived records are excluded from default queries (filtered by `archived=false`)
+- Users can view archived items via "View Archived" toggle in UI
+- Archived items cannot be edited (all fields disabled)
+- Users can unarchive items to restore them to active view
+- Admin users can permanently delete archived items
+- Archive/unarchive operations available via API endpoints
 
 ---
 

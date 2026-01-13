@@ -10,12 +10,17 @@ interface IncidentCardProps {
   onView?: (incident: Incident) => void
   onAssignmentChange?: () => void
   onStatusChange?: () => void
+  onArchiveChange?: () => void
+  showArchived?: boolean
 }
 
-const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange }: IncidentCardProps) => {
+const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, onArchiveChange, showArchived = false }: IncidentCardProps) => {
+  const { user } = useAuth()
   const [users, setUsers] = useState<User[]>([])
   const [assigning, setAssigning] = useState(false)
   const [changingStatus, setChangingStatus] = useState(false)
+  const [archiving, setArchiving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -63,6 +68,52 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange }: 
     }
   }
 
+  const handleArchive = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!window.confirm('Are you sure you want to archive this incident?')) return
+    
+    setArchiving(true)
+    try {
+      await incidentService.archiveIncident(incident.id)
+      onArchiveChange?.()
+    } catch (err: any) {
+      console.error('Failed to archive incident:', err)
+      alert(err.response?.data?.detail || 'Failed to archive incident')
+    } finally {
+      setArchiving(false)
+    }
+  }
+
+  const handleUnarchive = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setArchiving(true)
+    try {
+      await incidentService.unarchiveIncident(incident.id)
+      onArchiveChange?.()
+    } catch (err: any) {
+      console.error('Failed to unarchive incident:', err)
+      alert(err.response?.data?.detail || 'Failed to unarchive incident')
+    } finally {
+      setArchiving(false)
+    }
+  }
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!window.confirm('Are you sure you want to permanently delete this archived incident? This action cannot be undone.')) return
+    
+    setDeleting(true)
+    try {
+      await incidentService.deleteIncident(incident.id)
+      onArchiveChange?.()
+    } catch (err: any) {
+      console.error('Failed to delete incident:', err)
+      alert(err.response?.data?.detail || 'Failed to delete incident')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString()
   }
@@ -96,7 +147,8 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange }: 
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
         marginBottom: '1rem',
         cursor: onView ? 'pointer' : 'default',
-        borderLeft: `4px solid ${getSeverityColor(incident.severity)}`
+        borderLeft: `4px solid ${getSeverityColor(incident.severity)}`,
+        opacity: incident.archived ? 0.7 : 1
       }}
       onClick={() => onView?.(incident)}
     >
@@ -124,15 +176,15 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange }: 
           <select
             value={incident.status}
             onChange={handleStatusChange}
-            disabled={changingStatus}
+            disabled={changingStatus || incident.archived}
             onClick={(e) => e.stopPropagation()}
             style={{
               padding: '0.25rem 0.5rem',
               border: 'none',
               borderRadius: '4px',
               fontSize: '0.75rem',
-              cursor: changingStatus ? 'not-allowed' : 'pointer',
-              opacity: changingStatus ? 0.6 : 1,
+              cursor: (changingStatus || incident.archived) ? 'not-allowed' : 'pointer',
+              opacity: (changingStatus || incident.archived) ? 0.6 : 1,
               backgroundColor: getStatusColor(incident.status),
               color: 'white',
               fontWeight: '500',
@@ -170,15 +222,15 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange }: 
         <select
           value={incident.assigned_to_id || ''}
           onChange={handleAssignmentChange}
-          disabled={assigning}
+          disabled={assigning || incident.archived}
           onClick={(e) => e.stopPropagation()}
           style={{
             padding: '0.25rem 0.5rem',
             border: '1px solid #ddd',
             borderRadius: '4px',
             fontSize: '0.75rem',
-            cursor: assigning ? 'not-allowed' : 'pointer',
-            opacity: assigning ? 0.6 : 1
+            cursor: (assigning || incident.archived) ? 'not-allowed' : 'pointer',
+            opacity: (assigning || incident.archived) ? 0.6 : 1
           }}
         >
           <option value="">Unassign</option>
@@ -188,6 +240,69 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange }: 
             </option>
           ))}
         </select>
+      </div>
+      <div style={{ 
+        display: 'flex', 
+        gap: '0.5rem', 
+        marginTop: '0.5rem',
+        paddingTop: '0.5rem',
+        borderTop: '1px solid #eee'
+      }}>
+        {!incident.archived ? (
+          <button
+            onClick={handleArchive}
+            disabled={archiving}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: archiving ? 'not-allowed' : 'pointer',
+              fontSize: '0.875rem',
+              opacity: archiving ? 0.6 : 1
+            }}
+          >
+            {archiving ? 'Archiving...' : 'Archive'}
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={handleUnarchive}
+              disabled={archiving}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: archiving ? 'not-allowed' : 'pointer',
+                fontSize: '0.875rem',
+                opacity: archiving ? 0.6 : 1
+              }}
+            >
+              {archiving ? 'Unarchiving...' : 'Unarchive'}
+            </button>
+            {user?.role === 'admin' && (
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: deleting ? 'not-allowed' : 'pointer',
+                  fontSize: '0.875rem',
+                  opacity: deleting ? 0.6 : 1
+                }}
+              >
+                {deleting ? 'Deleting...' : 'Delete Permanently'}
+              </button>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

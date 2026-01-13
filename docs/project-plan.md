@@ -73,19 +73,23 @@ This document outlines the implementation plan for AsyncOps, an async-first oper
 
 **Deliverables**:
 - Status update creation and retrieval
-- Incident tracking system
+- Incident tracking system with severity, status, and assignment
 - Blocker management
+- Archive/unarchive functionality for incidents and blockers
+- Admin-only permanent delete for archived items
 - User interface for all three features
 - Timestamp and audit trail support
 
 **Key Tasks**:
 - Design and implement database schema for status/incidents/blockers
 - Create API endpoints for CRUD operations
+- Implement archive/unarchive/delete endpoints
 - Implement validation and business logic
 - Build React components for status updates
-- Build React components for incidents
-- Build React components for blockers
+- Build React components for incidents (with archive support)
+- Build React components for blockers (with archive support)
 - Add filtering and search capabilities
+- Implement edit restrictions for archived items
 - Write API and component tests
 
 **Dependencies**: Phase 2 (authentication)

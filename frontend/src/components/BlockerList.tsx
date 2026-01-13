@@ -5,9 +5,11 @@ import BlockerCard from './BlockerCard'
 
 interface BlockerListProps {
   onResolve?: (blocker: Blocker) => void
+  onArchiveChange?: () => void
+  archived?: boolean
 }
 
-const BlockerList = ({ onResolve }: BlockerListProps) => {
+const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerListProps) => {
   const [blockers, setBlockers] = useState<Blocker[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -23,7 +25,7 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit }
+      const params: any = { page, limit, archived }
       if (statusFilter) params.status = statusFilter
       
       const data: BlockerListType = await blockerService.getBlockers(params)
@@ -38,7 +40,7 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
 
   useEffect(() => {
     fetchBlockers()
-  }, [page, statusFilter])
+  }, [page, statusFilter, archived])
 
   const handleResolveClick = (blocker: Blocker) => {
     setResolvingBlocker(blocker)
@@ -52,6 +54,14 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
 
   const handleConfirmResolve = async () => {
     if (!resolvingBlocker) return
+    
+    // Prevent resolving archived blockers
+    if (resolvingBlocker.archived) {
+      alert('Cannot resolve archived blockers. Please unarchive first.')
+      setResolvingBlocker(null)
+      setResolutionNotes('')
+      return
+    }
     
     setIsResolving(true)
     try {
@@ -128,6 +138,19 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
           }}>
             <h2 style={{ marginTop: 0, marginBottom: '1rem' }}>Resolve Blocker</h2>
+            {resolvingBlocker.archived && (
+              <div style={{
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                backgroundColor: '#fff3cd',
+                color: '#856404',
+                borderRadius: '4px',
+                fontSize: '0.875rem',
+                border: '1px solid #ffc107'
+              }}>
+                This blocker is archived and cannot be resolved. Please unarchive it first.
+              </div>
+            )}
             <p style={{ marginBottom: '1rem', color: '#666' }}>
               Enter resolution notes (optional):
             </p>
@@ -135,6 +158,7 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
               value={resolutionNotes}
               onChange={(e) => setResolutionNotes(e.target.value)}
               placeholder="Describe how this blocker was resolved..."
+              disabled={isResolving || resolvingBlocker.archived}
               style={{
                 width: '100%',
                 minHeight: '100px',
@@ -144,9 +168,10 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
                 fontSize: '0.875rem',
                 fontFamily: 'inherit',
                 resize: 'vertical',
-                marginBottom: '1rem'
+                marginBottom: '1rem',
+                backgroundColor: resolvingBlocker.archived ? '#f5f5f5' : 'white',
+                cursor: (isResolving || resolvingBlocker.archived) ? 'not-allowed' : 'text'
               }}
-              disabled={isResolving}
             />
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
               <button
@@ -165,17 +190,17 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
               </button>
               <button
                 onClick={handleConfirmResolve}
-                disabled={isResolving}
+                disabled={isResolving || resolvingBlocker.archived}
                 style={{
                   padding: '0.5rem 1rem',
-                  backgroundColor: isResolving ? '#ccc' : '#28a745',
+                  backgroundColor: (isResolving || resolvingBlocker.archived) ? '#ccc' : '#28a745',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',
-                  cursor: isResolving ? 'not-allowed' : 'pointer'
+                  cursor: (isResolving || resolvingBlocker.archived) ? 'not-allowed' : 'pointer'
                 }}
               >
-                {isResolving ? 'Resolving...' : 'Resolve'}
+                {isResolving ? 'Resolving...' : resolvingBlocker.archived ? 'Archived (Cannot Resolve)' : 'Resolve'}
               </button>
             </div>
           </div>
@@ -217,6 +242,8 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
               key={blocker.id}
               blocker={blocker}
               onResolve={handleResolveClick}
+              onArchiveChange={onArchiveChange || fetchBlockers}
+              showArchived={archived}
             />
           ))}
           <div style={{

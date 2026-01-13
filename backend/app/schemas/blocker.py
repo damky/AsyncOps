@@ -31,6 +31,7 @@ class Blocker(BlockerBase):
     reported_by_id: int
     status: Literal["active", "resolved"]
     resolution_notes: Optional[str] = None
+    archived: bool = False
     created_at: datetime
     updated_at: datetime
     resolved_at: Optional[datetime] = None

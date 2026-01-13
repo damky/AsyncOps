@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, CheckConstraint
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, CheckConstraint, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
@@ -13,6 +13,7 @@ class Blocker(Base):
     impact = Column(Text, nullable=False)
     status = Column(String(20), nullable=False, default="active", index=True)
     resolution_notes = Column(Text, nullable=True)
+    archived = Column(Boolean, nullable=False, default=False, index=True)
     related_status_id = Column(Integer, ForeignKey("status_updates.id", ondelete="SET NULL"), nullable=True, index=True)
     related_incident_id = Column(Integer, ForeignKey("incidents.id", ondelete="SET NULL"), nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)

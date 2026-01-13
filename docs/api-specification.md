@@ -575,6 +575,7 @@ GET /api/incidents
 - `status` (string, optional: "open", "in_progress", "resolved", "closed")
 - `severity` (string, optional: "low", "medium", "high", "critical")
 - `assigned_to_id` (integer, optional)
+- `archived` (boolean, optional, default: false) - Filter by archived status
 - `reported_by_id` (integer, optional)
 - `start_date` (ISO date string, optional)
 - `end_date` (ISO date string, optional)
@@ -588,6 +589,7 @@ GET /api/incidents
       "title": "API Outage",
       "severity": "critical",
       "status": "open",
+      "archived": false,
       "created_at": "2024-01-15T10:00:00Z",
       "reporter": {
         "id": 1,
@@ -627,6 +629,7 @@ GET /api/incidents/{id}
     "severity": "critical",
     "status": "open",
     "resolution_notes": null,
+    "archived": false,
     "created_at": "2024-01-15T10:00:00Z",
     "updated_at": "2024-01-15T10:00:00Z",
     "resolved_at": null,
@@ -705,6 +708,64 @@ PATCH /api/incidents/{id}/assign
 
 ---
 
+#### Archive Incident
+
+```http
+PATCH /api/incidents/{id}/archive
+```
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Response**: `200 OK`
+```json
+{
+  "data": {
+    "id": 1,
+    "archived": true,
+    "updated_at": "2024-01-15T12:00:00Z"
+  }
+}
+```
+
+---
+
+#### Unarchive Incident
+
+```http
+PATCH /api/incidents/{id}/unarchive
+```
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Response**: `200 OK`
+```json
+{
+  "data": {
+    "id": 1,
+    "archived": false,
+    "updated_at": "2024-01-15T12:00:00Z"
+  }
+}
+```
+
+---
+
+#### Delete Incident (Admin Only)
+
+```http
+DELETE /api/incidents/{id}
+```
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Authorization**: Admin role required
+
+**Response**: `204 No Content`
+
+**Validation**: Only archived incidents can be permanently deleted. Returns `400 Bad Request` if incident is not archived.
+
+---
+
 ### Blockers
 
 #### Create Blocker
@@ -759,6 +820,7 @@ GET /api/blockers
 - `page` (integer, default: 1)
 - `limit` (integer, default: 20, max: 100)
 - `status` (string, optional: "active", "resolved")
+- `archived` (boolean, optional, default: false) - Filter by archived status
 - `reported_by_id` (integer, optional)
 - `start_date` (ISO date string, optional)
 - `end_date` (ISO date string, optional)
@@ -772,6 +834,7 @@ GET /api/blockers
       "description": "Waiting on API key...",
       "impact": "Cannot proceed...",
       "status": "active",
+      "archived": false,
       "created_at": "2024-01-15T10:00:00Z",
       "reporter": {
         "id": 1,
@@ -805,6 +868,7 @@ GET /api/blockers/{id}
     "impact": "Full impact description...",
     "status": "active",
     "resolution_notes": null,
+    "archived": false,
     "related_status_id": 1,
     "related_incident_id": 2,
     "created_at": "2024-01-15T10:00:00Z",
@@ -847,6 +911,64 @@ PATCH /api/blockers/{id}/resolve
   }
 }
 ```
+
+---
+
+#### Archive Blocker
+
+```http
+PATCH /api/blockers/{id}/archive
+```
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Response**: `200 OK`
+```json
+{
+  "data": {
+    "id": 1,
+    "archived": true,
+    "updated_at": "2024-01-15T12:00:00Z"
+  }
+}
+```
+
+---
+
+#### Unarchive Blocker
+
+```http
+PATCH /api/blockers/{id}/unarchive
+```
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Response**: `200 OK`
+```json
+{
+  "data": {
+    "id": 1,
+    "archived": false,
+    "updated_at": "2024-01-15T12:00:00Z"
+  }
+}
+```
+
+---
+
+#### Delete Blocker (Admin Only)
+
+```http
+DELETE /api/blockers/{id}
+```
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Authorization**: Admin role required
+
+**Response**: `204 No Content`
+
+**Validation**: Only archived blockers can be permanently deleted. Returns `400 Bad Request` if blocker is not archived.
 
 ---
 

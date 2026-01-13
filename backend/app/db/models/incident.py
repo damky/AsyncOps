@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, CheckConstraint
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, CheckConstraint, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
@@ -15,6 +15,7 @@ class Incident(Base):
     severity = Column(String(20), nullable=False, default="medium", index=True)
     status = Column(String(20), nullable=False, default="open", index=True)
     resolution_notes = Column(Text, nullable=True)
+    archived = Column(Boolean, nullable=False, default=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     resolved_at = Column(DateTime(timezone=True), nullable=True)

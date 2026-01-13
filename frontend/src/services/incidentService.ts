@@ -38,6 +38,7 @@ export const incidentService = {
     status?: string
     severity?: string
     assigned_to_id?: number
+    archived?: boolean
   }): Promise<IncidentList> {
     const token = await this.getToken()
     const response = await api.get<IncidentList>('/api/incidents', {
@@ -101,5 +102,42 @@ export const incidentService = {
       }
     )
     return response.data
+  },
+
+  async archiveIncident(id: number): Promise<Incident> {
+    const token = await this.getToken()
+    const response = await api.patch<Incident>(
+      `/api/incidents/${id}/archive`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  },
+
+  async unarchiveIncident(id: number): Promise<Incident> {
+    const token = await this.getToken()
+    const response = await api.patch<Incident>(
+      `/api/incidents/${id}/unarchive`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  },
+
+  async deleteIncident(id: number): Promise<void> {
+    const token = await this.getToken()
+    await api.delete(`/api/incidents/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
   },
 }

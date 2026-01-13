@@ -35,6 +35,7 @@ export const blockerService = {
     page?: number
     limit?: number
     status?: string
+    archived?: boolean
   }): Promise<BlockerList> {
     const token = await this.getToken()
     const response = await api.get<BlockerList>('/api/blockers', {
@@ -78,5 +79,42 @@ export const blockerService = {
       }
     )
     return response.data
+  },
+
+  async archiveBlocker(id: number): Promise<Blocker> {
+    const token = await this.getToken()
+    const response = await api.patch<Blocker>(
+      `/api/blockers/${id}/archive`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  },
+
+  async unarchiveBlocker(id: number): Promise<Blocker> {
+    const token = await this.getToken()
+    const response = await api.patch<Blocker>(
+      `/api/blockers/${id}/unarchive`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  },
+
+  async deleteBlocker(id: number): Promise<void> {
+    const token = await this.getToken()
+    await api.delete(`/api/blockers/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
   },
 }

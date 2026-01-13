@@ -278,6 +278,30 @@ This document provides detailed specifications for all features in the AsyncOps 
 
 ---
 
+### 3.5 Archive/Unarchive Incident
+
+**User Story**: As a team member, I want to archive incidents so they're hidden from the main view but still accessible for historical reference.
+
+**Acceptance Criteria**:
+- User can archive an incident to hide it from the default view
+- Archived incidents are excluded from default list queries
+- User can toggle "View Archived" to see archived incidents
+- Archived incidents cannot be edited (all fields disabled)
+- User can unarchive an incident to restore it to active view
+- Admin users can permanently delete archived incidents
+- Archive/unarchive operations are immediate and reversible
+
+**Technical Requirements**:
+- Endpoint: `PATCH /api/incidents/{id}/archive` - Archive an incident
+- Endpoint: `PATCH /api/incidents/{id}/unarchive` - Unarchive an incident
+- Endpoint: `DELETE /api/incidents/{id}` - Permanently delete archived incident (admin only)
+- Response: `200 OK` with updated incident
+- `GET /api/incidents` supports `archived` query parameter (default: `false`)
+- Archived incidents have `archived: true` field
+- Validation: Only archived incidents can be permanently deleted
+
+---
+
 ## 4. Blocker Tracking
 
 ### 4.1 Create Blocker
@@ -339,6 +363,31 @@ This document provides detailed specifications for all features in the AsyncOps 
 - Response: `200 OK` with updated blocker
 - Auto-populated: `status: "resolved"`, `resolved_at`, `updated_at`
 - Resolution notes length limit: 1,000 characters
+
+---
+
+### 4.4 Archive/Unarchive Blocker
+
+**User Story**: As a team member, I want to archive blockers so they're hidden from the main view but still accessible for historical reference.
+
+**Acceptance Criteria**:
+- User can archive a blocker to hide it from the default view
+- Archived blockers are excluded from default list queries
+- User can toggle "View Archived" to see archived blockers
+- Archived blockers cannot be edited (all fields disabled)
+- Archived blockers cannot be resolved
+- User can unarchive a blocker to restore it to active view
+- Admin users can permanently delete archived blockers
+- Archive/unarchive operations are immediate and reversible
+
+**Technical Requirements**:
+- Endpoint: `PATCH /api/blockers/{id}/archive` - Archive a blocker
+- Endpoint: `PATCH /api/blockers/{id}/unarchive` - Unarchive a blocker
+- Endpoint: `DELETE /api/blockers/{id}` - Permanently delete archived blocker (admin only)
+- Response: `200 OK` with updated blocker
+- `GET /api/blockers` supports `archived` query parameter (default: `false`)
+- Archived blockers have `archived: true` field
+- Validation: Only archived blockers can be permanently deleted
 
 ---
 

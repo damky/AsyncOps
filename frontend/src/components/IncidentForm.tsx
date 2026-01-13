@@ -53,6 +53,13 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Prevent submission if incident is archived
+    if (incident?.archived) {
+      setError('Cannot edit archived incidents. Please unarchive first.')
+      return
+    }
+    
     setError('')
     setLoading(true)
 
@@ -108,8 +115,22 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
       marginBottom: '1rem'
     }}>
       <h2 style={{ marginBottom: '1rem' }}>
-        {incident ? 'Edit Incident' : 'Create Incident'}
+        {incident ? (incident.archived ? 'View Archived Incident' : 'Edit Incident') : 'Create Incident'}
       </h2>
+      
+      {incident?.archived && (
+        <div style={{
+          padding: '0.75rem',
+          marginBottom: '1rem',
+          backgroundColor: '#fff3cd',
+          color: '#856404',
+          borderRadius: '4px',
+          fontSize: '0.875rem',
+          border: '1px solid #ffc107'
+        }}>
+          This incident is archived and cannot be edited. Unarchive it to make changes.
+        </div>
+      )}
 
       {error && (
         <div style={{
@@ -135,12 +156,15 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
           onChange={(e) => setTitle(e.target.value)}
           required
           maxLength={200}
+          disabled={incident?.archived}
           style={{
             width: '100%',
             padding: '0.75rem',
             border: '1px solid #ddd',
             borderRadius: '4px',
-            fontSize: '1rem'
+            fontSize: '1rem',
+            backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+            cursor: incident?.archived ? 'not-allowed' : 'text'
           }}
         />
       </div>
@@ -156,6 +180,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
           required
           maxLength={5000}
           rows={6}
+          disabled={incident?.archived}
           style={{
             width: '100%',
             padding: '0.75rem',
@@ -163,7 +188,9 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
             borderRadius: '4px',
             fontSize: '1rem',
             fontFamily: 'inherit',
-            resize: 'vertical'
+            resize: 'vertical',
+            backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+            cursor: incident?.archived ? 'not-allowed' : 'text'
           }}
         />
       </div>
@@ -177,12 +204,15 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
           value={severity}
           onChange={(e) => setSeverity(e.target.value as any)}
           required
+          disabled={incident?.archived}
           style={{
             width: '100%',
             padding: '0.75rem',
             border: '1px solid #ddd',
             borderRadius: '4px',
-            fontSize: '1rem'
+            fontSize: '1rem',
+            backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+            cursor: incident?.archived ? 'not-allowed' : 'pointer'
           }}
         >
           <option value="low">Low</option>
@@ -200,12 +230,15 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
           id="assignedTo"
           value={assignedToId || ''}
           onChange={(e) => setAssignedToId(e.target.value ? parseInt(e.target.value) : null)}
+          disabled={incident?.archived}
           style={{
             width: '100%',
             padding: '0.75rem',
             border: '1px solid #ddd',
             borderRadius: '4px',
-            fontSize: '1rem'
+            fontSize: '1rem',
+            backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+            cursor: incident?.archived ? 'not-allowed' : 'pointer'
           }}
         >
           <option value="">Unassigned</option>
@@ -227,12 +260,15 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value as IncidentStatus)}
+              disabled={incident?.archived}
               style={{
                 width: '100%',
                 padding: '0.75rem',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontSize: '1rem'
+                fontSize: '1rem',
+                backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+                cursor: incident?.archived ? 'not-allowed' : 'pointer'
               }}
             >
               <option value="open">Open</option>
@@ -254,6 +290,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
                 maxLength={5000}
                 rows={4}
                 placeholder="Optional: Add notes about how this incident was resolved..."
+                disabled={incident?.archived}
                 style={{
                   width: '100%',
                   padding: '0.75rem',
@@ -261,7 +298,9 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
                   borderRadius: '4px',
                   fontSize: '1rem',
                   fontFamily: 'inherit',
-                  resize: 'vertical'
+                  resize: 'vertical',
+                  backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+                  cursor: incident?.archived ? 'not-allowed' : 'text'
                 }}
               />
             </div>
@@ -288,18 +327,18 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
         )}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || incident?.archived}
           style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: '#007bff',
+            backgroundColor: incident?.archived ? '#6c757d' : '#007bff',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1
+            cursor: (loading || incident?.archived) ? 'not-allowed' : 'pointer',
+            opacity: (loading || incident?.archived) ? 0.6 : 1
           }}
         >
-          {loading ? 'Saving...' : incident ? 'Update' : 'Create'}
+          {loading ? 'Saving...' : incident?.archived ? 'Archived (Cannot Edit)' : incident ? 'Update' : 'Create'}
         </button>
       </div>
     </form>

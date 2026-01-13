@@ -36,6 +36,7 @@ class Incident(IncidentBase):
     reported_by_id: int
     status: Literal["open", "in_progress", "resolved", "closed"]
     resolution_notes: Optional[str] = None
+    archived: bool = False
     created_at: datetime
     updated_at: datetime
     resolved_at: Optional[datetime] = None
