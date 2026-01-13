@@ -18,13 +18,19 @@ from app.schemas.incident import (
 router = APIRouter()
 
 
-@router.post("", response_model=IncidentSchema, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", 
+    response_model=IncidentSchema, 
+    status_code=status.HTTP_201_CREATED, 
+    operation_id="create_incident",
+    summary="Create a new incident"
+)
 async def create_incident(
     incident_data: IncidentCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new incident."""
+    """Create a new incident. POST to /api/incidents (no ID in path)."""
     # Validate assigned_to_id if provided
     if incident_data.assigned_to_id:
         assigned_user = db.query(User).filter(User.id == incident_data.assigned_to_id).first()
@@ -121,14 +127,19 @@ async def get_incident(
     return incident
 
 
-@router.patch("/{incident_id}", response_model=IncidentSchema)
+@router.patch(
+    "/{incident_id}", 
+    response_model=IncidentSchema, 
+    operation_id="update_incident",
+    summary="Update an existing incident"
+)
 async def update_incident(
     incident_id: int,
     incident_data: IncidentUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Update an incident."""
+    """Update an incident by ID. Use PATCH method to /api/incidents/{incident_id}, not POST."""
     incident = db.query(Incident).filter(Incident.id == incident_id).first()
     
     if not incident:
