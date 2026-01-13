@@ -63,6 +63,16 @@ async def change_password(
     return {"message": "Password changed successfully"}
 
 
+@router.get("/for-assignment", response_model=List[UserResponse])
+async def get_users_for_assignment(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get list of active users for assignment purposes (any authenticated user)."""
+    users = db.query(User).filter(User.is_active == True).order_by(User.full_name).all()
+    return users
+
+
 @router.get("", response_model=List[UserResponse])
 async def list_users(
     page: int = Query(1, ge=1),

@@ -116,6 +116,8 @@ const IncidentList = ({ onView }: IncidentListProps) => {
               key={incident.id}
               incident={incident}
               onView={onView}
+              onAssignmentChange={fetchIncidents}
+              onStatusChange={fetchIncidents}
             />
           ))}
           <div style={{

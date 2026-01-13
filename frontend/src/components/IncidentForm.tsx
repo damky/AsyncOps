@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Incident, IncidentCreate, IncidentUpdate } from '../types/incident'
+import { Incident, IncidentCreate, IncidentUpdate, IncidentStatusUpdate, IncidentStatus } from '../types/incident'
 import { incidentService } from '../services/incidentService'
+import { userService } from '../services/userService'
+import { User } from '../types/user'
 
 interface IncidentFormProps {
   incident?: Incident | null
@@ -12,18 +14,40 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [severity, setSeverity] = useState<'low' | 'medium' | 'high' | 'critical'>('medium')
+  const [status, setStatus] = useState<IncidentStatus>('open')
+  const [assignedToId, setAssignedToId] = useState<number | null>(null)
+  const [resolutionNotes, setResolutionNotes] = useState('')
+  const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const userList = await userService.getUsersForAssignment()
+        setUsers(userList)
+      } catch (err) {
+        console.error('Failed to load users:', err)
+      }
+    }
+    fetchUsers()
+  }, [])
 
   useEffect(() => {
     if (incident) {
       setTitle(incident.title)
       setDescription(incident.description)
       setSeverity(incident.severity)
+      setStatus(incident.status)
+      setAssignedToId(incident.assigned_to_id || null)
+      setResolutionNotes(incident.resolution_notes || '')
     } else {
       setTitle('')
       setDescription('')
       setSeverity('medium')
+      setStatus('open')
+      setAssignedToId(null)
+      setResolutionNotes('')
     }
   }, [incident])
 
@@ -34,10 +58,37 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
 
     try {
       if (incident) {
-        const updateData: IncidentUpdate = { title, description, severity }
+        // Update basic fields
+        const updateData: IncidentUpdate = { 
+          title, 
+          description, 
+          severity,
+          assigned_to_id: assignedToId
+        }
         await incidentService.updateIncident(incident.id, updateData)
+        
+        // Update status separately if it changed
+        if (status !== incident.status) {
+          const statusData: IncidentStatusUpdate = {
+            status,
+            resolution_notes: (status === 'resolved' || status === 'closed') && resolutionNotes ? resolutionNotes : undefined
+          }
+          await incidentService.updateIncidentStatus(incident.id, statusData)
+        } else if ((status === 'resolved' || status === 'closed') && resolutionNotes && resolutionNotes !== incident.resolution_notes) {
+          // Update resolution notes if status is resolved/closed and notes changed
+          const statusData: IncidentStatusUpdate = {
+            status,
+            resolution_notes: resolutionNotes
+          }
+          await incidentService.updateIncidentStatus(incident.id, statusData)
+        }
       } else {
-        const createData: IncidentCreate = { title, description, severity }
+        const createData: IncidentCreate = { 
+          title, 
+          description, 
+          severity,
+          assigned_to_id: assignedToId
+        }
         await incidentService.createIncident(createData)
       }
       onSuccess?.()
@@ -140,6 +191,83 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
           <option value="critical">Critical</option>
         </select>
       </div>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="assignedTo" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+          Assign To
+        </label>
+        <select
+          id="assignedTo"
+          value={assignedToId || ''}
+          onChange={(e) => setAssignedToId(e.target.value ? parseInt(e.target.value) : null)}
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '1rem'
+          }}
+        >
+          <option value="">Unassigned</option>
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.full_name} ({user.email})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {incident && (
+        <>
+          <div style={{ marginBottom: '1rem' }}>
+            <label htmlFor="status" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+              Status
+            </label>
+            <select
+              id="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as IncidentStatus)}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '1rem'
+              }}
+            >
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+
+          {(status === 'resolved' || status === 'closed') && (
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="resolutionNotes" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                Resolution Notes
+              </label>
+              <textarea
+                id="resolutionNotes"
+                value={resolutionNotes}
+                onChange={(e) => setResolutionNotes(e.target.value)}
+                maxLength={5000}
+                rows={4}
+                placeholder="Optional: Add notes about how this incident was resolved..."
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '1rem',
+                  fontFamily: 'inherit',
+                  resize: 'vertical'
+                }}
+              />
+            </div>
+          )}
+        </>
+      )}
 
       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
         {onCancel && (

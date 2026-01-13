@@ -1,12 +1,68 @@
-import { Incident } from '../types/incident'
+import { useState, useEffect } from 'react'
+import { Incident, IncidentAssign, IncidentStatusUpdate, IncidentStatus } from '../types/incident'
 import { useAuth } from '../contexts/AuthContext'
+import { incidentService } from '../services/incidentService'
+import { userService } from '../services/userService'
+import { User } from '../types/user'
 
 interface IncidentCardProps {
   incident: Incident
   onView?: (incident: Incident) => void
+  onAssignmentChange?: () => void
+  onStatusChange?: () => void
 }
 
-const IncidentCard = ({ incident, onView }: IncidentCardProps) => {
+const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange }: IncidentCardProps) => {
+  const [users, setUsers] = useState<User[]>([])
+  const [assigning, setAssigning] = useState(false)
+  const [changingStatus, setChangingStatus] = useState(false)
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const userList = await userService.getUsersForAssignment()
+        setUsers(userList)
+      } catch (err) {
+        console.error('Failed to load users:', err)
+      }
+    }
+    fetchUsers()
+  }, [])
+
+  const handleAssignmentChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.stopPropagation()
+    const newAssignedToId = e.target.value ? parseInt(e.target.value) : null
+    setAssigning(true)
+    try {
+      const assignData: IncidentAssign = { assigned_to_id: newAssignedToId }
+      await incidentService.assignIncident(incident.id, assignData)
+      onAssignmentChange?.()
+    } catch (err: any) {
+      console.error('Failed to assign incident:', err)
+      alert(err.response?.data?.detail || 'Failed to assign incident')
+    } finally {
+      setAssigning(false)
+    }
+  }
+
+  const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.stopPropagation()
+    const newStatus = e.target.value as IncidentStatus
+    if (newStatus === incident.status) return
+    
+    setChangingStatus(true)
+    try {
+      const statusData: IncidentStatusUpdate = { status: newStatus }
+      await incidentService.updateIncidentStatus(incident.id, statusData)
+      onStatusChange?.()
+    } catch (err: any) {
+      console.error('Failed to update status:', err)
+      alert(err.response?.data?.detail || 'Failed to update status')
+    } finally {
+      setChangingStatus(false)
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString()
   }
@@ -65,19 +121,30 @@ const IncidentCard = ({ incident, onView }: IncidentCardProps) => {
           >
             {incident.severity}
           </span>
-          <span
+          <select
+            value={incident.status}
+            onChange={handleStatusChange}
+            disabled={changingStatus}
+            onClick={(e) => e.stopPropagation()}
             style={{
-              padding: '0.25rem 0.75rem',
-              backgroundColor: getStatusColor(incident.status),
-              color: 'white',
+              padding: '0.25rem 0.5rem',
+              border: 'none',
               borderRadius: '4px',
               fontSize: '0.75rem',
+              cursor: changingStatus ? 'not-allowed' : 'pointer',
+              opacity: changingStatus ? 0.6 : 1,
+              backgroundColor: getStatusColor(incident.status),
+              color: 'white',
               fontWeight: '500',
-              textTransform: 'uppercase'
+              textTransform: 'uppercase',
+              minWidth: '100px'
             }}
           >
-            {incident.status.replace('_', ' ')}
-          </span>
+            <option value="open" style={{ backgroundColor: '#dc3545', color: 'white' }}>Open</option>
+            <option value="in_progress" style={{ backgroundColor: '#007bff', color: 'white' }}>In Progress</option>
+            <option value="resolved" style={{ backgroundColor: '#28a745', color: 'white' }}>Resolved</option>
+            <option value="closed" style={{ backgroundColor: '#6c757d', color: 'white' }}>Closed</option>
+          </select>
         </div>
       </div>
       <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
@@ -85,11 +152,43 @@ const IncidentCard = ({ incident, onView }: IncidentCardProps) => {
           ? `${incident.description.substring(0, 150)}...`
           : incident.description}
       </div>
-      {incident.assigned_to && (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginTop: '0.5rem',
+        paddingTop: '0.5rem',
+        borderTop: '1px solid #eee'
+      }}>
         <div style={{ fontSize: '0.875rem', color: '#666' }}>
-          Assigned to: {incident.assigned_to.full_name}
+          {incident.assigned_to ? (
+            <>Assigned to: {incident.assigned_to.full_name}</>
+          ) : (
+            <>Unassigned</>
+          )}
         </div>
-      )}
+        <select
+          value={incident.assigned_to_id || ''}
+          onChange={handleAssignmentChange}
+          disabled={assigning}
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            padding: '0.25rem 0.5rem',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '0.75rem',
+            cursor: assigning ? 'not-allowed' : 'pointer',
+            opacity: assigning ? 0.6 : 1
+          }}
+        >
+          <option value="">Unassign</option>
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.full_name}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   )
 }
