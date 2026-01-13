@@ -1,0 +1,89 @@
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+from jose import JWTError, jwt
+import bcrypt
+from passlib.context import CryptContext
+from app.core.config import settings
+
+# Keep passlib context for backward compatibility with old hashes
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash.
+    
+    Supports both direct bcrypt hashes and passlib-formatted hashes for backward compatibility.
+    """
+    if not plain_password or not hashed_password:
+        return False
+    try:
+        # Ensure password is bytes
+        password_bytes = plain_password.encode('utf-8')
+        # Truncate to 72 bytes if necessary (bcrypt limit)
+        if len(password_bytes) > 72:
+            password_bytes = password_bytes[:72]
+        
+        # Try direct bcrypt verification first (new format)
+        try:
+            if isinstance(hashed_password, bytes):
+                hash_bytes = hashed_password
+            else:
+                hash_bytes = hashed_password.encode('utf-8')
+            return bcrypt.checkpw(password_bytes, hash_bytes)
+        except (ValueError, TypeError):
+            # If direct bcrypt fails, try passlib (for backward compatibility)
+            # This handles old passlib-formatted hashes
+            try:
+                return pwd_context.verify(plain_password, hashed_password)
+            except Exception:
+                return False
+    except Exception as e:
+        # Log the error for debugging (in production, use proper logging)
+        print(f"Password verification error: {e}")
+        return False
+
+
+def get_password_hash(password: str) -> str:
+    """Hash a password using bcrypt."""
+    if not password:
+        raise ValueError("Password cannot be empty")
+    # Ensure password is a string
+    if not isinstance(password, str):
+        password = str(password)
+    # Convert to bytes and truncate to 72 bytes if necessary (bcrypt limit)
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    # Generate salt and hash
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
+
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Create a JWT access token."""
+    to_encode = data.copy()
+    # Use timezone-aware datetime
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+
+def decode_access_token(token: str) -> Optional[dict]:
+    """Decode and verify a JWT token."""
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        return payload
+    except JWTError as e:
+        # Log the error for debugging
+        print(f"JWT decode error: {e}")
+        return None
+    except Exception as e:
+        # Log any other errors
+        print(f"Token decode error: {e}")
+        return None
