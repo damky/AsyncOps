@@ -83,6 +83,7 @@ graph LR
 - Blockers tracking
 - Decision log viewer
 - Daily summaries display
+- FilterMenu component (consolidated filtering UI)
 
 ---
 

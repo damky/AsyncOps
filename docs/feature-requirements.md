@@ -142,7 +142,7 @@ This document provides detailed specifications for all features in the AsyncOps 
 - Updates are sorted by most recent first (default)
 - Each update shows author, timestamp, title, and preview
 - User can click to view full update
-- Updates can be filtered by author or date range
+- Updates can be filtered by author via Filter Menu dropdown
 - Pagination supports large numbers of updates
 
 **Technical Requirements**:
@@ -151,6 +151,8 @@ This document provides detailed specifications for all features in the AsyncOps 
 - Response: `200 OK` with paginated list
 - Response format: `{ items: [...], total: number, page: number, limit: number }`
 - Default limit: 20 items per page
+- **UI**: Filter options are consolidated in a "Filters" dropdown menu (FilterMenu component)
+- **UI**: Author filter available in the Filter Menu dropdown
 
 ---
 
@@ -227,15 +229,18 @@ This document provides detailed specifications for all features in the AsyncOps 
 - User can see a list of all incidents
 - Incidents are sorted by severity and recency (default)
 - Each incident shows title, severity, status, reporter, and assigned user
-- User can filter by status, severity, or assigned user
+- User can filter by status, severity, or assigned user via Filter Menu dropdown
 - User can click to view full incident details
 - Pagination supports large numbers of incidents
 
 **Technical Requirements**:
 - Endpoint: `GET /api/incidents`
-- Query parameters: `?status=open&severity=high&assigned_to_id=123&page=1&limit=20`
+- Query parameters: `?status=open&severity=high&assigned_to_id=123&page=1&limit=20&archived=false`
 - Response: `200 OK` with paginated list
 - Default sort: severity (critical first), then created_at (newest first)
+- **UI**: Filter options (status, severity, assigned user) are consolidated in a "Filters" dropdown menu (FilterMenu component)
+- **UI**: "View Archived" is a separate checkbox on the page (not in the filter menu)
+- **UI**: Assigned user filter shows all active users in a dropdown
 
 ---
 
@@ -285,11 +290,12 @@ This document provides detailed specifications for all features in the AsyncOps 
 **Acceptance Criteria**:
 - User can archive an incident to hide it from the default view
 - Archived incidents are excluded from default list queries
-- User can toggle "View Archived" to see archived incidents
+- User can toggle "View Archived" checkbox (separate from filter menu) to see archived incidents
 - Archived incidents cannot be edited (all fields disabled)
 - User can unarchive an incident to restore it to active view
 - Admin users can permanently delete archived incidents
 - Archive/unarchive operations are immediate and reversible
+- **UI**: "View Archived" checkbox is displayed separately on the page, not in the filter menu
 
 **Technical Requirements**:
 - Endpoint: `PATCH /api/incidents/{id}/archive` - Archive an incident
@@ -334,15 +340,17 @@ This document provides detailed specifications for all features in the AsyncOps 
 - User can see a list of all blockers
 - Active blockers are shown first (default)
 - Each blocker shows description, impact, reporter, and status
-- User can filter by status
+- User can filter by status via Filter Menu dropdown
 - User can click to view full blocker details
 - Pagination supports large numbers of blockers
 
 **Technical Requirements**:
 - Endpoint: `GET /api/blockers`
-- Query parameters: `?status=active&page=1&limit=20`
+- Query parameters: `?status=active&page=1&limit=20&archived=false`
 - Response: `200 OK` with paginated list
 - Default sort: status (active first), then created_at (newest first)
+- **UI**: Filter options (status) are consolidated in a "Filters" dropdown menu (FilterMenu component)
+- **UI**: "View Archived" is a separate checkbox on the page (not in the filter menu)
 
 ---
 
@@ -394,12 +402,13 @@ This document provides detailed specifications for all features in the AsyncOps 
 **Acceptance Criteria**:
 - User can archive a blocker to hide it from the default view
 - Archived blockers are excluded from default list queries
-- User can toggle "View Archived" to see archived blockers
+- User can toggle "View Archived" checkbox (separate from filter menu) to see archived blockers
 - Archived blockers cannot be edited (all fields disabled)
 - Archived blockers cannot be resolved
 - User can unarchive a blocker to restore it to active view
 - Admin users can permanently delete archived blockers
 - Archive/unarchive operations are immediate and reversible
+- **UI**: "View Archived" checkbox is displayed separately on the page, not in the filter menu
 
 **Technical Requirements**:
 - Endpoint: `PATCH /api/blockers/{id}/archive` - Archive a blocker
@@ -590,15 +599,28 @@ This document provides detailed specifications for all features in the AsyncOps 
 **Acceptance Criteria**:
 - Filters available for each content type
 - Multiple filters can be combined
-- Filters are preserved in URL (for sharing)
-- Clear filters option available
+- Filters are consolidated in a "Filters" dropdown menu (FilterMenu component)
+- "View Archived" is a separate checkbox (not in filter menu)
+- Clear filters option available in the filter menu
+- Filter menu shows visual indicator when filters are active
 - Filter state is maintained during navigation
 
 **Technical Requirements**:
 - Filter parameters in query string
 - Filters validated on backend
 - Frontend maintains filter state
-- URL updates reflect current filters
+- **UI Component**: FilterMenu component provides consolidated filtering UI
+- **FilterMenu Features**:
+  - Dropdown/submenu interface
+  - Visual indicator (!) when filters are active
+  - "Clear All" button when filters are active
+  - Closes on outside click
+  - Supports: status, severity, assigned user, author filters
+- **Filter Options by Content Type**:
+  - **Status Updates**: Author filter
+  - **Incidents**: Status, Severity, Assigned User filters
+  - **Blockers**: Status filter
+- **View Archived**: Separate checkbox on page (not in filter menu) for incidents and blockers
 
 ---
 

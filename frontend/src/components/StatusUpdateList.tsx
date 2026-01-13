@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { statusService } from '../services/statusService'
+import { userService } from '../services/userService'
 import { StatusUpdate, StatusUpdateList as StatusUpdateListResponse } from '../types/statusUpdate'
+import { User } from '../types/user'
 import StatusUpdateCard from './StatusUpdateCard'
+import FilterMenu from './FilterMenu'
 
 interface StatusUpdateListProps {
   onEdit?: (status: StatusUpdate) => void
@@ -14,16 +17,31 @@ const StatusUpdateList = ({ onEdit, onDelete }: StatusUpdateListProps) => {
   const [error, setError] = useState('')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const [authorFilter, setAuthorFilter] = useState<number | null>(null)
+  const [users, setUsers] = useState<User[]>([])
   const limit = 20
+
+  // Load users for author filter
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const usersData = await userService.getUsersForAssignment()
+        setUsers(usersData)
+      } catch (err) {
+        console.error('Failed to load users:', err)
+      }
+    }
+    loadUsers()
+  }, [])
 
   const fetchStatusUpdates = async () => {
     setLoading(true)
     setError('')
     try {
-      const data: StatusUpdateListResponse = await statusService.getStatusUpdates({
-        page,
-        limit,
-      })
+      const params: any = { page, limit }
+      if (authorFilter) params.author_id = authorFilter
+      
+      const data: StatusUpdateListResponse = await statusService.getStatusUpdates(params)
       setStatusUpdates(data.items)
       setTotal(data.total)
     } catch (err: any) {
@@ -35,7 +53,7 @@ const StatusUpdateList = ({ onEdit, onDelete }: StatusUpdateListProps) => {
 
   useEffect(() => {
     fetchStatusUpdates()
-  }, [page])
+  }, [page, authorFilter])
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this status update?')) {
@@ -69,6 +87,25 @@ const StatusUpdateList = ({ onEdit, onDelete }: StatusUpdateListProps) => {
 
   return (
     <div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        marginBottom: '1rem'
+      }}>
+        <FilterMenu
+          filters={{
+            author: {
+              value: authorFilter,
+              onChange: (value) => {
+                setAuthorFilter(value)
+                setPage(1)
+              },
+              options: users
+            }
+          }}
+          onClearFilters={() => setPage(1)}
+        />
+      </div>
       {statusUpdates.length === 0 ? (
         <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
           No status updates yet. Create one to get started!

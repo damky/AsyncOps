@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { blockerService } from '../services/blockerService'
 import { Blocker, BlockerList as BlockerListType } from '../types/blocker'
 import BlockerCard from './BlockerCard'
+import FilterMenu from './FilterMenu'
 
 interface BlockerListProps {
   onResolve?: (blocker: Blocker) => void
@@ -16,6 +17,7 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [statusFilter, setStatusFilter] = useState<string>('')
+  const [archivedFilter, setArchivedFilter] = useState<boolean>(archived)
   const [resolvingBlocker, setResolvingBlocker] = useState<Blocker | null>(null)
   const [resolutionNotes, setResolutionNotes] = useState('')
   const [isResolving, setIsResolving] = useState(false)
@@ -25,7 +27,7 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit, archived }
+      const params: any = { page, limit, archived: archivedFilter }
       if (statusFilter) params.status = statusFilter
       
       const data: BlockerListType = await blockerService.getBlockers(params)
@@ -40,7 +42,12 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
 
   useEffect(() => {
     fetchBlockers()
-  }, [page, statusFilter, archived])
+  }, [page, statusFilter, archivedFilter])
+
+  // Sync archived filter with prop changes
+  useEffect(() => {
+    setArchivedFilter(archived)
+  }, [archived])
 
   const handleResolveClick = (blocker: Blocker) => {
     setResolvingBlocker(blocker)
@@ -209,29 +216,27 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
       )}
 
       <div style={{
-        marginBottom: '1rem',
-        padding: '1rem',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '4px'
+        display: 'flex',
+        justifyContent: 'flex-end',
+        marginBottom: '1rem'
       }}>
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value)
-            setPage(1)
+        <FilterMenu
+          filters={{
+            status: {
+              value: statusFilter,
+              onChange: (value) => {
+                setStatusFilter(value)
+                setPage(1)
+              },
+              options: [
+                { label: 'All Statuses', value: '' },
+                { label: 'Active', value: 'active' },
+                { label: 'Resolved', value: 'resolved' }
+              ]
+            }
           }}
-          style={{
-            padding: '0.5rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            backgroundColor: 'white',
-            color: '#333'
-          }}
-        >
-          <option value="">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="resolved">Resolved</option>
-        </select>
+          onClearFilters={() => setPage(1)}
+        />
       </div>
 
       {blockers.length === 0 ? (
@@ -246,7 +251,7 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
               blocker={blocker}
               onResolve={handleResolveClick}
               onArchiveChange={onArchiveChange || fetchBlockers}
-              showArchived={archived}
+              showArchived={archivedFilter}
             />
           ))}
           <div style={{

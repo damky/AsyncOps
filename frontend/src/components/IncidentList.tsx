@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { incidentService } from '../services/incidentService'
+import { userService } from '../services/userService'
 import { Incident, IncidentList as IncidentListType } from '../types/incident'
+import { User } from '../types/user'
 import IncidentCard from './IncidentCard'
+import FilterMenu from './FilterMenu'
 
 interface IncidentListProps {
   onView?: (incident: Incident) => void
@@ -17,15 +20,32 @@ const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentLis
   const [total, setTotal] = useState(0)
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [severityFilter, setSeverityFilter] = useState<string>('')
+  const [assignedToFilter, setAssignedToFilter] = useState<number | null>(null)
+  const [archivedFilter, setArchivedFilter] = useState<boolean>(archived)
+  const [users, setUsers] = useState<User[]>([])
   const limit = 20
+
+  // Load users for assignment filter
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const usersData = await userService.getUsersForAssignment()
+        setUsers(usersData)
+      } catch (err) {
+        console.error('Failed to load users:', err)
+      }
+    }
+    loadUsers()
+  }, [])
 
   const fetchIncidents = async () => {
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit, archived }
+      const params: any = { page, limit, archived: archivedFilter }
       if (statusFilter) params.status = statusFilter
       if (severityFilter) params.severity = severityFilter
+      if (assignedToFilter) params.assigned_to_id = assignedToFilter
       
       const data: IncidentListType = await incidentService.getIncidents(params)
       setIncidents(data.items)
@@ -39,7 +59,12 @@ const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentLis
 
   useEffect(() => {
     fetchIncidents()
-  }, [page, statusFilter, severityFilter, archived])
+  }, [page, statusFilter, severityFilter, assignedToFilter, archivedFilter])
+
+  // Sync archived filter with prop changes
+  useEffect(() => {
+    setArchivedFilter(archived)
+  }, [archived])
 
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
@@ -63,52 +88,50 @@ const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentLis
     <div>
       <div style={{
         display: 'flex',
-        gap: '1rem',
-        marginBottom: '1rem',
-        padding: '1rem',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '4px'
+        justifyContent: 'flex-end',
+        marginBottom: '1rem'
       }}>
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value)
-            setPage(1)
+        <FilterMenu
+          filters={{
+            status: {
+              value: statusFilter,
+              onChange: (value) => {
+                setStatusFilter(value)
+                setPage(1)
+              },
+              options: [
+                { label: 'All Statuses', value: '' },
+                { label: 'Open', value: 'open' },
+                { label: 'In Progress', value: 'in_progress' },
+                { label: 'Resolved', value: 'resolved' },
+                { label: 'Closed', value: 'closed' }
+              ]
+            },
+            severity: {
+              value: severityFilter,
+              onChange: (value) => {
+                setSeverityFilter(value)
+                setPage(1)
+              },
+              options: [
+                { label: 'All Severities', value: '' },
+                { label: 'Low', value: 'low' },
+                { label: 'Medium', value: 'medium' },
+                { label: 'High', value: 'high' },
+                { label: 'Critical', value: 'critical' }
+              ]
+            },
+            assignedTo: {
+              value: assignedToFilter,
+              onChange: (value) => {
+                setAssignedToFilter(value)
+                setPage(1)
+              },
+              options: users
+            }
           }}
-          style={{
-            padding: '0.5rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            backgroundColor: 'white',
-            color: '#333'
-          }}
-        >
-          <option value="">All Statuses</option>
-          <option value="open">Open</option>
-          <option value="in_progress">In Progress</option>
-          <option value="resolved">Resolved</option>
-          <option value="closed">Closed</option>
-        </select>
-        <select
-          value={severityFilter}
-          onChange={(e) => {
-            setSeverityFilter(e.target.value)
-            setPage(1)
-          }}
-          style={{
-            padding: '0.5rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            backgroundColor: 'white',
-            color: '#333'
-          }}
-        >
-          <option value="">All Severities</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-          <option value="critical">Critical</option>
-        </select>
+          onClearFilters={() => setPage(1)}
+        />
       </div>
 
       {incidents.length === 0 ? (
@@ -125,7 +148,7 @@ const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentLis
               onAssignmentChange={fetchIncidents}
               onStatusChange={fetchIncidents}
               onArchiveChange={onArchiveChange || fetchIncidents}
-              showArchived={archived}
+              showArchived={archivedFilter}
             />
           ))}
           <div style={{
