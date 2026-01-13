@@ -33,7 +33,27 @@ interface FilterMenuProps {
 
 const FilterMenu = ({ filters, onClearFilters }: FilterMenuProps) => {
   const [isOpen, setIsOpen] = useState(false)
+  const [alignRight, setAlignRight] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Calculate dropdown position to prevent viewport overflow
+  useEffect(() => {
+    if (isOpen && menuRef.current && dropdownRef.current) {
+      const buttonRect = menuRef.current.getBoundingClientRect()
+      const dropdownWidth = 250 // minWidth from dropdown style
+      const viewportWidth = window.innerWidth
+      const spaceOnRight = viewportWidth - buttonRect.right
+      const spaceOnLeft = buttonRect.left
+
+      // If there's not enough space on the right, align to the right
+      if (spaceOnRight < dropdownWidth && spaceOnLeft >= dropdownWidth) {
+        setAlignRight(true)
+      } else {
+        setAlignRight(false)
+      }
+    }
+  }, [isOpen])
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -103,19 +123,23 @@ const FilterMenu = ({ filters, onClearFilters }: FilterMenuProps) => {
       </button>
 
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          marginTop: '0.5rem',
-          backgroundColor: 'white',
-          border: '1px solid #ddd',
-          borderRadius: '4px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-          padding: '1rem',
-          minWidth: '250px',
-          zIndex: 1000
-        }}>
+        <div 
+          ref={dropdownRef}
+          style={{
+            position: 'absolute',
+            top: '100%',
+            ...(alignRight ? { right: 0 } : { left: 0 }),
+            marginTop: '0.5rem',
+            backgroundColor: 'white',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            padding: '1rem',
+            minWidth: '250px',
+            maxWidth: 'calc(100vw - 2rem)',
+            zIndex: 1000
+          }}
+        >
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',

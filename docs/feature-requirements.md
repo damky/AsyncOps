@@ -615,6 +615,8 @@ This document provides detailed specifications for all features in the AsyncOps 
   - Visual indicator (!) when filters are active
   - "Clear All" button when filters are active
   - Closes on outside click
+  - Viewport-aware positioning (prevents overflow, aligns right when needed)
+  - Max-width constraint to ensure dropdown stays within viewport
   - Supports: status, severity, assigned user, author filters
 - **Filter Options by Content Type**:
   - **Status Updates**: Author filter
