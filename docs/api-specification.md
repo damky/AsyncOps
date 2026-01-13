@@ -914,6 +914,33 @@ PATCH /api/blockers/{id}/resolve
 
 ---
 
+#### Reopen Blocker
+
+```http
+PATCH /api/blockers/{id}/reopen
+```
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Response**: `200 OK`
+```json
+{
+  "data": {
+    "id": 1,
+    "status": "active",
+    "resolved_at": null,
+    "updated_at": "2024-01-15T12:00:00Z"
+  }
+}
+```
+
+**Validation**: 
+- Blocker must be in "resolved" status
+- Blocker must not be archived
+- Returns `400 Bad Request` if validation fails
+
+---
+
 #### Archive Blocker
 
 ```http

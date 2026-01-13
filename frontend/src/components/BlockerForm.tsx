@@ -112,6 +112,7 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
             fontFamily: 'inherit',
             resize: 'vertical',
             backgroundColor: blocker?.archived ? '#f5f5f5' : 'white',
+            color: '#333',
             cursor: blocker?.archived ? 'not-allowed' : 'text'
           }}
         />
@@ -138,6 +139,7 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
             fontFamily: 'inherit',
             resize: 'vertical',
             backgroundColor: blocker?.archived ? '#f5f5f5' : 'white',
+            color: '#333',
             cursor: blocker?.archived ? 'not-allowed' : 'text'
           }}
         />

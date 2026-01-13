@@ -111,7 +111,9 @@ const StatusUpdateForm = ({ status, onSuccess, onCancel }: StatusUpdateFormProps
             padding: '0.75rem',
             border: '1px solid #ddd',
             borderRadius: '4px',
-            fontSize: '1rem'
+            fontSize: '1rem',
+            backgroundColor: 'white',
+            color: '#333'
           }}
         />
       </div>
@@ -134,7 +136,9 @@ const StatusUpdateForm = ({ status, onSuccess, onCancel }: StatusUpdateFormProps
             borderRadius: '4px',
             fontSize: '1rem',
             fontFamily: 'inherit',
-            resize: 'vertical'
+            resize: 'vertical',
+            backgroundColor: 'white',
+            color: '#333'
           }}
         />
         <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>

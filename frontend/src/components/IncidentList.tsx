@@ -78,7 +78,9 @@ const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentLis
           style={{
             padding: '0.5rem',
             border: '1px solid #ddd',
-            borderRadius: '4px'
+            borderRadius: '4px',
+            backgroundColor: 'white',
+            color: '#333'
           }}
         >
           <option value="">All Statuses</option>
@@ -96,7 +98,9 @@ const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentLis
           style={{
             padding: '0.5rem',
             border: '1px solid #ddd',
-            borderRadius: '4px'
+            borderRadius: '4px',
+            backgroundColor: 'white',
+            color: '#333'
           }}
         >
           <option value="">All Severities</option>

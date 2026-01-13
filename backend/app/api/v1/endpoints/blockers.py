@@ -206,6 +206,45 @@ async def resolve_blocker(
     return blocker
 
 
+@router.patch("/{blocker_id}/reopen", response_model=BlockerSchema)
+async def reopen_blocker(
+    blocker_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Reopen a resolved blocker (change status from resolved to active)."""
+    blocker = db.query(Blocker).filter(Blocker.id == blocker_id).first()
+    
+    if not blocker:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Blocker not found"
+        )
+    
+    if blocker.archived:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot reopen archived blockers. Please unarchive first."
+        )
+    
+    if blocker.status != "resolved":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only reopen resolved blockers"
+        )
+    
+    # Change status back to active
+    blocker.status = "active"
+    # Clear resolved_at timestamp
+    blocker.resolved_at = None
+    
+    db.commit()
+    db.refresh(blocker)
+    db.refresh(blocker, ["reported_by"])
+    
+    return blocker
+
+
 @router.patch("/{blocker_id}/archive", response_model=BlockerSchema)
 async def archive_blocker(
     blocker_id: int,

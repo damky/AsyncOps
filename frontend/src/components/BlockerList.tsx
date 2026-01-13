@@ -170,6 +170,7 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
                 resize: 'vertical',
                 marginBottom: '1rem',
                 backgroundColor: resolvingBlocker.archived ? '#f5f5f5' : 'white',
+                color: '#333',
                 cursor: (isResolving || resolvingBlocker.archived) ? 'not-allowed' : 'text'
               }}
             />
@@ -222,7 +223,9 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
           style={{
             padding: '0.5rem',
             border: '1px solid #ddd',
-            borderRadius: '4px'
+            borderRadius: '4px',
+            backgroundColor: 'white',
+            color: '#333'
           }}
         >
           <option value="">All Statuses</option>

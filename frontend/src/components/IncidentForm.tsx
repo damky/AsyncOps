@@ -164,6 +164,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
             borderRadius: '4px',
             fontSize: '1rem',
             backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+            color: '#333',
             cursor: incident?.archived ? 'not-allowed' : 'text'
           }}
         />
@@ -190,6 +191,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
             fontFamily: 'inherit',
             resize: 'vertical',
             backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+            color: '#333',
             cursor: incident?.archived ? 'not-allowed' : 'text'
           }}
         />
@@ -212,6 +214,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
             borderRadius: '4px',
             fontSize: '1rem',
             backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+            color: '#333',
             cursor: incident?.archived ? 'not-allowed' : 'pointer'
           }}
         >
@@ -238,6 +241,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
             borderRadius: '4px',
             fontSize: '1rem',
             backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+            color: '#333',
             cursor: incident?.archived ? 'not-allowed' : 'pointer'
           }}
         >
@@ -268,6 +272,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
                 borderRadius: '4px',
                 fontSize: '1rem',
                 backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+                color: '#333',
                 cursor: incident?.archived ? 'not-allowed' : 'pointer'
               }}
             >
@@ -300,6 +305,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
                   fontFamily: 'inherit',
                   resize: 'vertical',
                   backgroundColor: incident?.archived ? '#f5f5f5' : 'white',
+                  color: '#333',
                   cursor: incident?.archived ? 'not-allowed' : 'text'
                 }}
               />

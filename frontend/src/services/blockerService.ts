@@ -81,6 +81,20 @@ export const blockerService = {
     return response.data
   },
 
+  async reopenBlocker(id: number): Promise<Blocker> {
+    const token = await this.getToken()
+    const response = await api.patch<Blocker>(
+      `/api/blockers/${id}/reopen`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  },
+
   async archiveBlocker(id: number): Promise<Blocker> {
     const token = await this.getToken()
     const response = await api.patch<Blocker>(

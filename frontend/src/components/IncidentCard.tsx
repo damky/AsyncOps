@@ -229,6 +229,8 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, on
             border: '1px solid #ddd',
             borderRadius: '4px',
             fontSize: '0.75rem',
+            backgroundColor: 'white',
+            color: '#333',
             cursor: (assigning || incident.archived) ? 'not-allowed' : 'pointer',
             opacity: (assigning || incident.archived) ? 0.6 : 1
           }}

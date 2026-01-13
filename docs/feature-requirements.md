@@ -366,7 +366,28 @@ This document provides detailed specifications for all features in the AsyncOps 
 
 ---
 
-### 4.4 Archive/Unarchive Blocker
+### 4.4 Reopen Blocker
+
+**User Story**: As a team member, I want to reopen a resolved blocker if it becomes active again.
+
+**Acceptance Criteria**:
+- User can reopen a resolved blocker to change its status back to "active"
+- Reopen option is available via kebab menu (⋮) next to the status tag
+- Reopen clears the `resolved_at` timestamp
+- Only resolved blockers can be reopened
+- Archived blockers cannot be reopened (must unarchive first)
+- User receives confirmation before reopening
+
+**Technical Requirements**:
+- Endpoint: `PATCH /api/blockers/{id}/reopen`
+- Response: `200 OK` with updated blocker
+- Auto-populated: `status: "active"`, `resolved_at: null`, `updated_at`
+- Validation: Blocker must be resolved and not archived
+- Error: `400 Bad Request` if blocker is not resolved or is archived
+
+---
+
+### 4.5 Archive/Unarchive Blocker
 
 **User Story**: As a team member, I want to archive blockers so they're hidden from the main view but still accessible for historical reference.
 
