@@ -14,6 +14,9 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [statusFilter, setStatusFilter] = useState<string>('')
+  const [resolvingBlocker, setResolvingBlocker] = useState<Blocker | null>(null)
+  const [resolutionNotes, setResolutionNotes] = useState('')
+  const [isResolving, setIsResolving] = useState(false)
   const limit = 20
 
   const fetchBlockers = async () => {
@@ -37,29 +40,36 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
     fetchBlockers()
   }, [page, statusFilter])
 
-  const handleResolve = async (blocker: Blocker) => {
-    console.log('Resolve blocker clicked for blocker:', blocker.id)
+  const handleResolveClick = (blocker: Blocker) => {
+    setResolvingBlocker(blocker)
+    setResolutionNotes('')
+  }
+
+  const handleCancelResolve = () => {
+    setResolvingBlocker(null)
+    setResolutionNotes('')
+  }
+
+  const handleConfirmResolve = async () => {
+    if (!resolvingBlocker) return
     
-    const notes = window.prompt('Enter resolution notes (optional):')
-    
-    // If user cancels the prompt, abort the operation
-    if (notes === null) {
-      console.log('User cancelled resolution')
-      return
-    }
-    
+    setIsResolving(true)
     try {
       const resolveData = {
-        resolution_notes: notes && notes.trim() ? notes.trim() : null
+        resolution_notes: resolutionNotes.trim() || null
       }
-      console.log('Calling resolveBlocker API for blocker:', blocker.id, 'with data:', resolveData)
+      console.log('Calling resolveBlocker API for blocker:', resolvingBlocker.id, 'with data:', resolveData)
       
-      const result = await blockerService.resolveBlocker(blocker.id, resolveData)
+      const result = await blockerService.resolveBlocker(resolvingBlocker.id, resolveData)
       console.log('Blocker resolved successfully:', result)
       
       // Refresh the blockers list
       await fetchBlockers()
-      onResolve?.(blocker)
+      onResolve?.(resolvingBlocker)
+      
+      // Close the modal
+      setResolvingBlocker(null)
+      setResolutionNotes('')
     } catch (err: any) {
       console.error('Error resolving blocker:', err)
       console.error('Error details:', {
@@ -70,6 +80,8 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
       })
       const errorMessage = err.response?.data?.detail || err.message || 'Failed to resolve blocker'
       alert(`Error: ${errorMessage}`)
+    } finally {
+      setIsResolving(false)
     }
   }
 
@@ -93,6 +105,83 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
 
   return (
     <div>
+      {/* Resolution Modal */}
+      {resolvingBlocker && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '8px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '1rem' }}>Resolve Blocker</h2>
+            <p style={{ marginBottom: '1rem', color: '#666' }}>
+              Enter resolution notes (optional):
+            </p>
+            <textarea
+              value={resolutionNotes}
+              onChange={(e) => setResolutionNotes(e.target.value)}
+              placeholder="Describe how this blocker was resolved..."
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '0.875rem',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                marginBottom: '1rem'
+              }}
+              disabled={isResolving}
+            />
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleCancelResolve}
+                disabled={isResolving}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: isResolving ? 'not-allowed' : 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmResolve}
+                disabled={isResolving}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: isResolving ? '#ccc' : '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: isResolving ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isResolving ? 'Resolving...' : 'Resolve'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{
         marginBottom: '1rem',
         padding: '1rem',
@@ -127,7 +216,7 @@ const BlockerList = ({ onResolve }: BlockerListProps) => {
             <BlockerCard
               key={blocker.id}
               blocker={blocker}
-              onResolve={handleResolve}
+              onResolve={handleResolveClick}
             />
           ))}
           <div style={{
