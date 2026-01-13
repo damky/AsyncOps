@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import IncidentList from '../components/IncidentList'
 import IncidentForm from '../components/IncidentForm'
@@ -43,6 +44,21 @@ const Incidents = () => {
       }}>
         <h1>Incidents</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Link
+            to="/dashboard"
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              textDecoration: 'none',
+              fontSize: '0.875rem'
+            }}
+          >
+            Home
+          </Link>
           <span>Welcome, {user?.full_name}</span>
           <button
             onClick={logout}
