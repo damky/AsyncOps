@@ -21,3 +21,6 @@ class User(Base):
     reported_incidents = relationship("Incident", foreign_keys="Incident.reported_by_id", back_populates="reported_by")
     assigned_incidents = relationship("Incident", foreign_keys="Incident.assigned_to_id", back_populates="assigned_to")
     blockers = relationship("Blocker", back_populates="reported_by", cascade="all, delete-orphan")
+    decisions = relationship("Decision", foreign_keys="Decision.created_by_id", back_populates="created_by", cascade="all, delete-orphan")
+    decision_participations = relationship("DecisionParticipant", foreign_keys="DecisionParticipant.user_id", back_populates="user", cascade="all, delete-orphan")
+    decision_audit_logs = relationship("DecisionAuditLog", foreign_keys="DecisionAuditLog.changed_by_id", back_populates="changed_by", cascade="all, delete-orphan")

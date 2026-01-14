@@ -1,1 +1,1 @@
-Make any updates to project docs regarding unanticapated changes or new features added that need documenting or reworded to match the current status of the project. Commit changes to git.
+Ensure project docs match the current status of the project. Update with any unanticapated changes or new features added. Commit changes to git.

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import StatusUpdates from './pages/StatusUpdates'
 import Incidents from './pages/Incidents'
 import Blockers from './pages/Blockers'
+import Decisions from './pages/Decisions'
 import PrivateRoute from './components/PrivateRoute'
 
 function App() {
@@ -44,6 +45,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Blockers />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/decisions"
+            element={
+              <PrivateRoute>
+                <Decisions />
               </PrivateRoute>
             }
           />

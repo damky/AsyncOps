@@ -1,0 +1,8 @@
+---
+name: functional-components
+description: This is a new rule
+---
+
+# Overview
+
+Always choose functional components over class components when coding in react.
