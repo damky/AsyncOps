@@ -61,48 +61,46 @@ This document tracks the progress of AsyncOps development according to the proje
 
 ---
 
-## Phase 3: Core Features - Status Updates & Tracking (IN PROGRESS)
+## Phase 3: Core Features - Status Updates & Tracking ✅ COMPLETE
 
 ### Detailed Plan
 📋 **See [Next Steps Plan](./docs/next-steps-plan.md) for complete implementation breakdown**
 
 ### Overview
-Implement three core features:
+Implemented three core features:
 - **Status Updates**: Async status updates with tags and timestamps
 - **Incident Tracking**: Incident reporting and management with severity levels
 - **Blocker Management**: Blocker tracking and resolution
 
-### Implementation Steps
-1. **Database Models & Migrations** (Backend)
-   - Create StatusUpdate, Incident, and Blocker models
-   - Create database migration (002_add_core_features.py)
+### Completed Implementation Steps
+1. ✅ **Database Models & Migrations** (Backend)
+   - Created StatusUpdate, Incident, and Blocker models
+   - Created database migration (002_add_core_features.py)
 
-2. **Pydantic Schemas** (Backend)
-   - Create schemas for all three features
-   - Include create, update, and response schemas
+2. ✅ **Pydantic Schemas** (Backend)
+   - Created schemas for all three features
+   - Included create, update, and response schemas
 
-3. **API Endpoints** (Backend)
+3. ✅ **API Endpoints** (Backend)
    - Status updates: CRUD endpoints with filtering
-   - Incidents: CRUD + status updates + assignment
-   - Blockers: CRUD + resolution
+   - Incidents: CRUD + status updates + assignment + archive/unarchive
+   - Blockers: CRUD + resolution + archive/unarchive
 
-4. **Frontend Types & Services** (TypeScript)
+4. ✅ **Frontend Types & Services** (TypeScript)
    - Type definitions matching backend schemas
    - API service functions for all endpoints
 
-5. **Frontend Components & Pages**
+5. ✅ **Frontend Components & Pages**
    - List, form, and card components for each feature
    - Full pages with routing and state management
+   - FilterMenu component for consolidated filtering
+   - Archive/unarchive functionality with UI
 
-6. **Testing & Validation**
-   - Backend API testing
-   - Frontend component testing
-   - Integration testing
-
-### Estimated Timeline
-- **Week 1**: Backend foundation (~13 hours)
-- **Week 2**: Frontend implementation (~18 hours)
-- **Total**: 2 weeks for Phase 3
+6. ✅ **Additional Features**
+   - Archive/unarchive functionality for incidents and blockers
+   - Admin-only permanent delete for archived items
+   - Filtering by status, severity, assigned user, author
+   - Viewport-aware dropdown positioning
 
 ---
 
@@ -151,9 +149,7 @@ Implement three core features:
 ### ✅ Completed
 - **Phase 1**: Foundation & Infrastructure (100%)
 - **Phase 2**: Authentication & Authorization (100%)
-
-### 🚧 In Progress
-- **Phase 3**: Core Features (0% - Ready to start)
+- **Phase 3**: Core Features - Status Updates & Tracking (100%)
 
 ### 📋 Pending
 - **Phase 4**: Decision Log & Audit Trail
@@ -164,14 +160,14 @@ Implement three core features:
 
 ## Next Immediate Steps
 
-1. **Start Phase 3** - Core Features:
-   - Create database models for status updates, incidents, and blockers
-   - Implement API endpoints
-   - Build frontend components
-   - Add filtering and search
+1. **Start Phase 4** - Decision Log & Audit Trail:
+   - Design decision log schema with audit support
+   - Implement decision API endpoints
+   - Create audit trail system
+   - Build decision log UI components
 
 2. **Testing**:
-   - Add unit tests for authentication
+   - Add unit tests for core features
    - Add integration tests for API endpoints
    - Add component tests for React components
 
@@ -216,6 +212,9 @@ docker-compose exec backend python -m app.scripts.create_admin
 ## Notes
 
 - All authentication features are working
+- All Phase 3 core features are implemented and functional
 - Database migrations are set up and ready
 - Frontend and backend are connected
-- Ready to proceed with Phase 3 implementation
+- FilterMenu component with viewport-aware positioning implemented
+- Archive/unarchive functionality working for incidents and blockers
+- Ready to proceed with Phase 4 implementation
