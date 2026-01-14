@@ -64,7 +64,7 @@ This document tracks the progress of AsyncOps development according to the proje
 ## Phase 3: Core Features - Status Updates & Tracking ✅ COMPLETE
 
 ### Detailed Plan
-📋 **See [Next Steps Plan](./docs/next-steps-plan.md) for complete implementation breakdown**
+📋 **See [Next Steps Plan](next-steps-plan.md) for complete implementation breakdown**
 
 ### Overview
 Implemented three core features:
@@ -312,3 +312,4 @@ docker-compose exec backend alembic upgrade head
 - `002_add_core_features.py` - Status updates, incidents, blockers
 - `003_add_archived_field.py` - Archived field for incidents and blockers
 - `004_add_decisions.py` - Decisions, participants, audit log
+- `005_add_daily_summaries.py` - Daily summaries

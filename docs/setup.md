@@ -108,9 +108,9 @@ This guide will help you get AsyncOps running locally.
 
 ## Next Steps
 
-1. Review the [Project Plan](docs/project-plan.md) for implementation phases
-2. Check [Feature Requirements](docs/feature-requirements.md) for detailed specs
-3. See [Development Setup](docs/development-setup.md) for more details
+1. Review the [Project Plan](project-plan.md) for implementation phases
+2. Check [Feature Requirements](feature-requirements.md) for detailed specs
+3. See [Development Setup](development-setup.md) for more details
 4. Start implementing Phase 1 features!
 
 ## Troubleshooting
@@ -129,4 +129,4 @@ This guide will help you get AsyncOps running locally.
 - Check `DATABASE_URL` in `.env`
 - Try: `alembic downgrade -1` then `alembic upgrade head`
 
-For more help, see the [Development Setup Guide](docs/development-setup.md).
+For more help, see the [Development Setup Guide](development-setup.md).

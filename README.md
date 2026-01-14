@@ -35,7 +35,7 @@ Designed for remote-first, async teams where written communication and clarity m
 
 Layer	    Tech	                    Why
 Frontend	React + TypeScript	        Type safety, predictable UI, scalable components
-Backend	    Node.js (or FastAPI)	    Clean API layer, async-ready
+Backend	    FastAPI (Python)	        Clean API layer, async-ready
 Database	PostgreSQL	                Relational integrity, auditability
 Auth	    JWT / OAuth	                Secure role-based access
 Infra	    AWS (ECS/RDS)	            Production-style deployment
@@ -46,14 +46,12 @@ DevOps	    Docker + GitHub Actions	    Repeatable builds, CI/CD
 🏗 Architecture Overview
 
 React (Client)
-   ↓ REST / GraphQL
-API Server (Node / FastAPI)
+   ↓ REST API
+API Server (FastAPI)
    ↓
 PostgreSQL (RDS)
    ↓
-Background Jobs (Daily Summary)
-
-### Optional: include a simple diagram image. Extra points.
+Background Jobs (Daily Summary worker)
 
 ⸻
 
@@ -80,21 +78,30 @@ Background Jobs (Daily Summary)
 	•	API request validation
 	•	TypeScript strict mode enabled
 	•	Linting + formatting enforced in CI
+	•	Manual test checklist in testing/TESTING.md
 
 ⸻
 
 🚀 Getting Started (Local)
 
+Quick start:
+
 ```bash
-	git clone https://github.com/yourname/asyncops
-	cd asyncops
-	docker-compose up
+git clone <repository-url>
+cd AsyncOps
+cp .env.example .env
+docker-compose up
 ```
 
-Include:
-	•	.env.example
-	•	minimal steps
-	•	no magic
+For the full setup guide, see docs/setup.md.
+
+Docs index:
+	•	Setup: docs/setup.md
+	•	Development: docs/development-setup.md
+	•	API spec: docs/api-specification.md
+	•	Architecture: docs/architecture.md
+	•	Progress: docs/progress.md
+	•	Testing: testing/TESTING.md
 
 ⸻
 

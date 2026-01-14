@@ -65,10 +65,11 @@ AsyncOps/
 │   ├── Dockerfile              # Production Docker image
 │   ├── Dockerfile.dev          # Development Docker image
 │   └── nginx.conf              # Nginx config for production
-├── docs/                       # Documentation (already created)
+├── docs/
+│   ├── setup.md                # Quick setup guide
+│   └── scaffolding.md          # This file
 ├── docker-compose.yml          # Local development orchestration
 ├── .gitignore
-├── SETUP.md                    # Quick setup guide
 └── README.md                   # Project README
 ```
 
@@ -191,4 +192,4 @@ docker-compose down
 - All environment variables should be set in `.env` file
 - CORS is configured for localhost:3000 and localhost:5173 by default
 
-For detailed setup instructions, see [SETUP.md](SETUP.md).
+For detailed setup instructions, see [docs/setup.md](setup.md).
