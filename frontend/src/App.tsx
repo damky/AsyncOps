@@ -7,6 +7,7 @@ import StatusUpdates from './pages/StatusUpdates'
 import Incidents from './pages/Incidents'
 import Blockers from './pages/Blockers'
 import Decisions from './pages/Decisions'
+import DailySummaries from './pages/DailySummaries'
 import PrivateRoute from './components/PrivateRoute'
 
 function App() {
@@ -53,6 +54,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Decisions />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/summaries"
+            element={
+              <PrivateRoute>
+                <DailySummaries />
               </PrivateRoute>
             }
           />

@@ -1,0 +1,41 @@
+/* Fix for Swagger UI white text on white background issue */
+.swagger-ui input[type="text"],
+.swagger-ui input[type="password"],
+.swagger-ui input[type="email"],
+.swagger-ui input[type="number"],
+.swagger-ui input[type="search"],
+.swagger-ui input[type="tel"],
+.swagger-ui input[type="url"],
+.swagger-ui textarea,
+.swagger-ui select {
+  color: #333 !important;
+  background-color: #fff !important;
+}
+
+/* Fix for parameter input fields */
+.swagger-ui .parameters input,
+.swagger-ui .parameters textarea,
+.swagger-ui .parameters select {
+  color: #333 !important;
+  background-color: #fff !important;
+}
+
+/* Fix for request body textarea */
+.swagger-ui textarea.curl {
+  color: #333 !important;
+  background-color: #fff !important;
+}
+
+/* Fix for any other input fields that might have the issue */
+.swagger-ui input:not([type="checkbox"]):not([type="radio"]),
+.swagger-ui textarea {
+  color: #333 !important;
+  background-color: #fff !important;
+}
+
+/* Ensure placeholder text is visible */
+.swagger-ui input::placeholder,
+.swagger-ui textarea::placeholder {
+  color: #999 !important;
+  opacity: 1 !important;
+}

@@ -185,6 +185,38 @@ const Dashboard = () => {
               </p>
             </div>
           </Link>
+
+          <Link
+            to="/summaries"
+            style={{
+              textDecoration: 'none',
+              color: 'inherit'
+            }}
+          >
+            <div style={{
+              backgroundColor: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              cursor: 'pointer',
+              transition: 'transform 0.2s',
+              border: '2px solid transparent'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.borderColor = '#17a2b8'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'transparent'
+            }}
+            >
+              <h3 style={{ marginBottom: '0.5rem', color: '#17a2b8' }}>Daily Summaries</h3>
+              <p style={{ color: '#666', fontSize: '0.875rem' }}>
+                Review automated daily summaries of team activity
+              </p>
+            </div>
+          </Link>
         </div>
       </main>
     </div>

@@ -1221,6 +1221,75 @@ GET /api/decisions/{id}/audit
 
 ### Daily Summaries
 
+#### Generate Daily Summary (Admin Only)
+
+```http
+POST /api/summaries/generate
+```
+
+**Headers**: `Authorization: Bearer <token>`
+
+**Query Parameters**:
+- `summary_date` (ISO date string, optional)
+
+**Response**: `201 Created`
+```json
+{
+  "data": {
+    "id": 1,
+    "summary_date": "2024-01-15",
+    "content": {
+      "status_updates": [
+        {
+          "id": 1,
+          "title": "Weekly Update",
+          "author": "John Doe",
+          "created_at": "2024-01-15T10:00:00Z"
+        }
+      ],
+      "incidents": [
+        {
+          "id": 1,
+          "title": "API Outage",
+          "severity": "critical",
+          "status": "open"
+        }
+      ],
+      "blockers": [
+        {
+          "id": 1,
+          "description": "Waiting on API key",
+          "status": "active"
+        }
+      ],
+      "recent_decisions": [
+        {
+          "id": 1,
+          "title": "Adopt FastAPI",
+          "decision_date": "2024-01-14"
+        }
+      ],
+      "statistics": {
+        "total_status_updates": 5,
+        "critical_incidents": 1,
+        "active_blockers": 2,
+        "decisions_last_7_days": 3
+      }
+    },
+    "status_updates_count": 5,
+    "incidents_count": 2,
+    "blockers_count": 3,
+    "decisions_count": 1,
+    "generated_at": "2024-01-15T09:00:00Z"
+  }
+}
+```
+
+**Errors**:
+- `403 Forbidden` - User is not an admin
+
+---
+
 #### List Daily Summaries
 
 ```http

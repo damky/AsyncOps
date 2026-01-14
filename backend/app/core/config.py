@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     # Environment
     ENVIRONMENT: str = "development"
     DEBUG: bool = False
+
+    # Daily summary scheduling (UTC)
+    DAILY_SUMMARY_RUN_HOUR_UTC: int = 9
+    DAILY_SUMMARY_RUN_MINUTE_UTC: int = 0
+    DAILY_SUMMARY_POLL_INTERVAL_SECONDS: int = 300
+    DAILY_SUMMARY_RETRY_INTERVAL_SECONDS: int = 600
     
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
