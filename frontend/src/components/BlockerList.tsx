@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { blockerService } from '../services/blockerService'
 import { Blocker, BlockerList as BlockerListType } from '../types/blocker'
 import BlockerCard from './BlockerCard'
 import FilterMenu from './FilterMenu'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface BlockerListProps {
   onResolve?: (blocker: Blocker) => void
@@ -23,26 +24,33 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
   const [isResolving, setIsResolving] = useState(false)
   const limit = 20
 
-  const fetchBlockers = async () => {
+  const fetchBlockers = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit, archived: archivedFilter }
-      if (statusFilter) params.status = statusFilter
+      const params: {
+        page: number
+        limit: number
+        archived: boolean
+        status?: string
+      } = { page, limit, archived: archivedFilter }
+      if (statusFilter) {
+        params.status = statusFilter
+      }
       
       const data: BlockerListType = await blockerService.getBlockers(params)
       setBlockers(data.items)
       setTotal(data.total)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load blockers')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to load blockers'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [archivedFilter, limit, page, statusFilter])
 
   useEffect(() => {
     fetchBlockers()
-  }, [page, statusFilter, archivedFilter])
+  }, [fetchBlockers])
 
   // Sync archived filter with prop changes
   useEffect(() => {
@@ -87,16 +95,9 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
       // Close the modal
       setResolvingBlocker(null)
       setResolutionNotes('')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error resolving blocker:', err)
-      console.error('Error details:', {
-        message: err.message,
-        response: err.response,
-        status: err.response?.status,
-        data: err.response?.data
-      })
-      const errorMessage = err.response?.data?.detail || err.message || 'Failed to resolve blocker'
-      alert(`Error: ${errorMessage}`)
+      alert(`Error: ${getApiErrorMessage(err, 'Failed to resolve blocker')}`)
     } finally {
       setIsResolving(false)
     }
@@ -251,7 +252,6 @@ const BlockerList = ({ onResolve, onArchiveChange, archived = false }: BlockerLi
               blocker={blocker}
               onResolve={handleResolveClick}
               onArchiveChange={onArchiveChange || fetchBlockers}
-              showArchived={archivedFilter}
             />
           ))}
           <div style={{

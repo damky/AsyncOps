@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { authService } from '../services/authService'
+import { getApiErrorMessage } from '../services/apiClient'
 
 const Register = () => {
   const [email, setEmail] = useState('')
@@ -18,8 +19,8 @@ const Register = () => {
     try {
       await authService.register(email, password, fullName)
       navigate('/login', { state: { message: 'Registration successful! Please login.' } })
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Registration failed. Please try again.')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Registration failed. Please try again.'))
     } finally {
       setLoading(false)
     }

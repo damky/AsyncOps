@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { incidentService } from '../services/incidentService'
 import { userService } from '../services/userService'
 import { Incident, IncidentList as IncidentListType } from '../types/incident'
 import { User } from '../types/user'
 import IncidentCard from './IncidentCard'
 import FilterMenu from './FilterMenu'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface IncidentListProps {
   onView?: (incident: Incident) => void
@@ -38,28 +39,41 @@ const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentLis
     loadUsers()
   }, [])
 
-  const fetchIncidents = async () => {
+  const fetchIncidents = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit, archived: archivedFilter }
-      if (statusFilter) params.status = statusFilter
-      if (severityFilter) params.severity = severityFilter
-      if (assignedToFilter) params.assigned_to_id = assignedToFilter
+      const params: {
+        page: number
+        limit: number
+        archived: boolean
+        status?: string
+        severity?: string
+        assigned_to_id?: number
+      } = { page, limit, archived: archivedFilter }
+      if (statusFilter) {
+        params.status = statusFilter
+      }
+      if (severityFilter) {
+        params.severity = severityFilter
+      }
+      if (assignedToFilter !== null) {
+        params.assigned_to_id = assignedToFilter
+      }
       
       const data: IncidentListType = await incidentService.getIncidents(params)
       setIncidents(data.items)
       setTotal(data.total)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load incidents')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to load incidents'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [archivedFilter, assignedToFilter, limit, page, severityFilter, statusFilter])
 
   useEffect(() => {
     fetchIncidents()
-  }, [page, statusFilter, severityFilter, assignedToFilter, archivedFilter])
+  }, [fetchIncidents])
 
   // Sync archived filter with prop changes
   useEffect(() => {
@@ -148,7 +162,6 @@ const IncidentList = ({ onView, onArchiveChange, archived = false }: IncidentLis
               onAssignmentChange={fetchIncidents}
               onStatusChange={fetchIncidents}
               onArchiveChange={onArchiveChange || fetchIncidents}
-              showArchived={archivedFilter}
             />
           ))}
           <div style={{

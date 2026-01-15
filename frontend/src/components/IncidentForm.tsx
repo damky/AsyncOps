@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Incident, IncidentCreate, IncidentUpdate, IncidentStatusUpdate, IncidentStatus } from '../types/incident'
+import {
+  Incident,
+  IncidentCreate,
+  IncidentUpdate,
+  IncidentStatusUpdate,
+  IncidentStatus,
+  IncidentSeverity,
+} from '../types/incident'
 import { incidentService } from '../services/incidentService'
 import { userService } from '../services/userService'
 import { User } from '../types/user'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface IncidentFormProps {
   incident?: Incident | null
@@ -99,8 +107,8 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
         await incidentService.createIncident(createData)
       }
       onSuccess?.()
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to save incident')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to save incident'))
     } finally {
       setLoading(false)
     }
@@ -204,7 +212,7 @@ const IncidentForm = ({ incident, onSuccess, onCancel }: IncidentFormProps) => {
         <select
           id="severity"
           value={severity}
-          onChange={(e) => setSeverity(e.target.value as any)}
+          onChange={(e) => setSeverity(e.target.value as IncidentSeverity)}
           required
           disabled={incident?.archived}
           style={{

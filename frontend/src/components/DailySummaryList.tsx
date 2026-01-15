@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { summaryService } from '../services/summaryService'
 import {
   DailySummaryList as DailySummaryListType,
   DailySummaryListItem,
 } from '../types/dailySummary'
 import DailySummaryCard from './DailySummaryCard'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface DailySummaryListProps {
   onView?: (summary: DailySummaryListItem) => void
@@ -20,27 +21,36 @@ const DailySummaryList = ({ onView }: DailySummaryListProps) => {
   const [endDate, setEndDate] = useState<string>('')
   const limit = 20
 
-  const fetchSummaries = async () => {
+  const fetchSummaries = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit }
-      if (startDate) params.start_date = startDate
-      if (endDate) params.end_date = endDate
+      const params: {
+        page: number
+        limit: number
+        start_date?: string
+        end_date?: string
+      } = { page, limit }
+      if (startDate) {
+        params.start_date = startDate
+      }
+      if (endDate) {
+        params.end_date = endDate
+      }
 
       const data: DailySummaryListType = await summaryService.getSummaries(params)
       setSummaries(data.items)
       setTotal(data.total)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load daily summaries')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to load daily summaries'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [endDate, limit, page, startDate])
 
   useEffect(() => {
     fetchSummaries()
-  }, [page, startDate, endDate])
+  }, [fetchSummaries])
 
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>

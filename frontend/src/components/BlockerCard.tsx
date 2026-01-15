@@ -2,15 +2,15 @@ import { useState } from 'react'
 import { Blocker } from '../types/blocker'
 import { useAuth } from '../contexts/AuthContext'
 import { blockerService } from '../services/blockerService'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface BlockerCardProps {
   blocker: Blocker
   onResolve?: (blocker: Blocker) => void
   onArchiveChange?: () => void
-  showArchived?: boolean
 }
 
-const BlockerCard = ({ blocker, onResolve, onArchiveChange, showArchived = false }: BlockerCardProps) => {
+const BlockerCard = ({ blocker, onResolve, onArchiveChange }: BlockerCardProps) => {
   const { user } = useAuth()
   const [archiving, setArchiving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -29,9 +29,9 @@ const BlockerCard = ({ blocker, onResolve, onArchiveChange, showArchived = false
     try {
       await blockerService.archiveBlocker(blocker.id)
       onArchiveChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to archive blocker:', err)
-      alert(err.response?.data?.detail || 'Failed to archive blocker')
+      alert(getApiErrorMessage(err, 'Failed to archive blocker'))
     } finally {
       setArchiving(false)
     }
@@ -43,9 +43,9 @@ const BlockerCard = ({ blocker, onResolve, onArchiveChange, showArchived = false
     try {
       await blockerService.unarchiveBlocker(blocker.id)
       onArchiveChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to unarchive blocker:', err)
-      alert(err.response?.data?.detail || 'Failed to unarchive blocker')
+      alert(getApiErrorMessage(err, 'Failed to unarchive blocker'))
     } finally {
       setArchiving(false)
     }
@@ -59,9 +59,9 @@ const BlockerCard = ({ blocker, onResolve, onArchiveChange, showArchived = false
     try {
       await blockerService.deleteBlocker(blocker.id)
       onArchiveChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to delete blocker:', err)
-      alert(err.response?.data?.detail || 'Failed to delete blocker')
+      alert(getApiErrorMessage(err, 'Failed to delete blocker'))
     } finally {
       setDeleting(false)
     }
@@ -76,9 +76,9 @@ const BlockerCard = ({ blocker, onResolve, onArchiveChange, showArchived = false
     try {
       await blockerService.reopenBlocker(blocker.id)
       onArchiveChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to reopen blocker:', err)
-      alert(err.response?.data?.detail || 'Failed to reopen blocker')
+      alert(getApiErrorMessage(err, 'Failed to reopen blocker'))
     } finally {
       setReopening(false)
     }

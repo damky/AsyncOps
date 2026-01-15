@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         .then(setUser)
         .catch((error) => {
           // Token is invalid or expired, clear it
-          console.log('Invalid token, clearing storage')
+          console.log('Invalid token, clearing storage', error)
           localStorage.removeItem('token')
           setToken(null)
           setUser(null)
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Fetch user info
       const userData = await authService.getCurrentUser(response.access_token)
       setUser(userData)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('AuthContext login error:', error)
       throw error
     }
@@ -76,6 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {

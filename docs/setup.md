@@ -5,7 +5,7 @@ This guide will help you get AsyncOps running locally.
 ## Prerequisites
 
 - Docker Desktop installed and running
-- Node.js 18+ (for local frontend development, optional)
+- Node.js 22.12+ (for local frontend development, optional)
 - Python 3.11+ (for local backend development, optional)
 
 ## Quick Start

@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { incidentService } from '../services/incidentService'
 import { userService } from '../services/userService'
 import { User } from '../types/user'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface IncidentCardProps {
   incident: Incident
@@ -11,10 +12,9 @@ interface IncidentCardProps {
   onAssignmentChange?: () => void
   onStatusChange?: () => void
   onArchiveChange?: () => void
-  showArchived?: boolean
 }
 
-const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, onArchiveChange, showArchived = false }: IncidentCardProps) => {
+const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, onArchiveChange }: IncidentCardProps) => {
   const { user } = useAuth()
   const [users, setUsers] = useState<User[]>([])
   const [assigning, setAssigning] = useState(false)
@@ -42,9 +42,9 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, on
       const assignData: IncidentAssign = { assigned_to_id: newAssignedToId }
       await incidentService.assignIncident(incident.id, assignData)
       onAssignmentChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to assign incident:', err)
-      alert(err.response?.data?.detail || 'Failed to assign incident')
+      alert(getApiErrorMessage(err, 'Failed to assign incident'))
     } finally {
       setAssigning(false)
     }
@@ -60,9 +60,9 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, on
       const statusData: IncidentStatusUpdate = { status: newStatus }
       await incidentService.updateIncidentStatus(incident.id, statusData)
       onStatusChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update status:', err)
-      alert(err.response?.data?.detail || 'Failed to update status')
+      alert(getApiErrorMessage(err, 'Failed to update status'))
     } finally {
       setChangingStatus(false)
     }
@@ -76,9 +76,9 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, on
     try {
       await incidentService.archiveIncident(incident.id)
       onArchiveChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to archive incident:', err)
-      alert(err.response?.data?.detail || 'Failed to archive incident')
+      alert(getApiErrorMessage(err, 'Failed to archive incident'))
     } finally {
       setArchiving(false)
     }
@@ -90,9 +90,9 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, on
     try {
       await incidentService.unarchiveIncident(incident.id)
       onArchiveChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to unarchive incident:', err)
-      alert(err.response?.data?.detail || 'Failed to unarchive incident')
+      alert(getApiErrorMessage(err, 'Failed to unarchive incident'))
     } finally {
       setArchiving(false)
     }
@@ -106,9 +106,9 @@ const IncidentCard = ({ incident, onView, onAssignmentChange, onStatusChange, on
     try {
       await incidentService.deleteIncident(incident.id)
       onArchiveChange?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to delete incident:', err)
-      alert(err.response?.data?.detail || 'Failed to delete incident')
+      alert(getApiErrorMessage(err, 'Failed to delete incident'))
     } finally {
       setDeleting(false)
     }

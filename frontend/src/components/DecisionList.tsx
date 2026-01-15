@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { decisionService } from '../services/decisionService'
 import { userService } from '../services/userService'
 import { Decision, DecisionList as DecisionListType } from '../types/decision'
 import { User } from '../types/user'
 import DecisionCard from './DecisionCard'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface DecisionListProps {
   onView?: (decision: Decision) => void
@@ -38,30 +39,48 @@ const DecisionList = ({ onView, onEdit, onDelete }: DecisionListProps) => {
     loadUsers()
   }, [])
 
-  const fetchDecisions = async () => {
+  const fetchDecisions = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit }
-      if (startDate) params.start_date = startDate
-      if (endDate) params.end_date = endDate
-      if (participantFilter) params.participant_id = participantFilter
-      if (tagFilter) params.tag = tagFilter
-      if (searchQuery) params.search = searchQuery
+      const params: {
+        page: number
+        limit: number
+        start_date?: string
+        end_date?: string
+        participant_id?: number
+        tag?: string
+        search?: string
+      } = { page, limit }
+      if (startDate) {
+        params.start_date = startDate
+      }
+      if (endDate) {
+        params.end_date = endDate
+      }
+      if (participantFilter !== null) {
+        params.participant_id = participantFilter
+      }
+      if (tagFilter) {
+        params.tag = tagFilter
+      }
+      if (searchQuery) {
+        params.search = searchQuery
+      }
       
       const data: DecisionListType = await decisionService.getDecisions(params)
       setDecisions(data.items)
       setTotal(data.total)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load decisions')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to load decisions'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [endDate, limit, page, participantFilter, searchQuery, startDate, tagFilter])
 
   useEffect(() => {
     fetchDecisions()
-  }, [page, startDate, endDate, participantFilter, tagFilter, searchQuery])
+  }, [fetchDecisions])
 
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>

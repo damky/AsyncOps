@@ -6,6 +6,7 @@ import DecisionForm from '../components/DecisionForm'
 import { Decision } from '../types/decision'
 import { decisionService } from '../services/decisionService'
 import { DecisionAuditLogEntry } from '../types/decision'
+import { getApiErrorMessage } from '../services/apiClient'
 
 const Decisions = () => {
   const { user, logout } = useAuth()
@@ -50,8 +51,8 @@ const Decisions = () => {
       if (viewingDecision?.id === decision.id) {
         setViewingDecision(null)
       }
-    } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to delete decision')
+    } catch (err: unknown) {
+      alert(getApiErrorMessage(err, 'Failed to delete decision'))
     }
   }
 

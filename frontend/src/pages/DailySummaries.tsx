@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import DailySummaryList from '../components/DailySummaryList'
 import { summaryService } from '../services/summaryService'
+import { getApiErrorMessage } from '../services/apiClient'
 import {
   DailySummary,
   DailySummaryListItem,
@@ -22,8 +23,8 @@ const DailySummaries = () => {
     try {
       const fullSummary = await summaryService.getSummary(summary.id)
       setViewingSummary(fullSummary)
-    } catch (err: any) {
-      setSummaryError(err.response?.data?.detail || 'Failed to load daily summary')
+    } catch (err: unknown) {
+      setSummaryError(getApiErrorMessage(err, 'Failed to load daily summary'))
       setViewingSummary(null)
     } finally {
       setLoadingSummary(false)
@@ -45,8 +46,8 @@ const DailySummaries = () => {
     try {
       const summary = await summaryService.generateSummary()
       setGenerateMessage(`Generated summary for ${formatDate(summary.summary_date)}.`)
-    } catch (err: any) {
-      setSummaryError(err.response?.data?.detail || 'Failed to generate daily summary')
+    } catch (err: unknown) {
+      setSummaryError(getApiErrorMessage(err, 'Failed to generate daily summary'))
     } finally {
       setGeneratingSummary(false)
     }

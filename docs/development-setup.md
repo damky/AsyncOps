@@ -10,7 +10,7 @@ This guide will help you set up a local development environment for AsyncOps.
   - Download: https://www.docker.com/products/docker-desktop
   - Required for running containers locally
 
-- **Node.js** (version 18+)
+- **Node.js** (version 22.12+)
   - Download: https://nodejs.org/
   - Required for frontend development
   - Verify: `node --version`
@@ -497,7 +497,7 @@ git push origin feature/your-feature-name
 **Solutions**:
 - Clear node_modules: `rm -rf node_modules && npm install`
 - Clear build cache: `rm -rf dist .vite`
-- Check Node.js version: `node --version` (should be 18+)
+- Check Node.js version: `node --version` (should be 22.12+)
 - Check for dependency conflicts
 
 ### Backend Import Errors

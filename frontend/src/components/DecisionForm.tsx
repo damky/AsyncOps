@@ -3,6 +3,7 @@ import { Decision, DecisionCreate, DecisionUpdate } from '../types/decision'
 import { decisionService } from '../services/decisionService'
 import { userService } from '../services/userService'
 import { User } from '../types/user'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface DecisionFormProps {
   decision?: Decision | null
@@ -105,8 +106,8 @@ const DecisionForm = ({ decision, onSuccess, onCancel }: DecisionFormProps) => {
         await decisionService.createDecision(createData)
       }
       onSuccess?.()
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to save decision')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to save decision'))
     } finally {
       setLoading(false)
     }

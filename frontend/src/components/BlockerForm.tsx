@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Blocker, BlockerCreate, BlockerUpdate } from '../types/blocker'
 import { blockerService } from '../services/blockerService'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface BlockerFormProps {
   blocker?: Blocker | null
@@ -45,8 +46,8 @@ const BlockerForm = ({ blocker, onSuccess, onCancel }: BlockerFormProps) => {
         await blockerService.createBlocker(createData)
       }
       onSuccess?.()
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to save blocker')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to save blocker'))
     } finally {
       setLoading(false)
     }

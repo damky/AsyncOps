@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { getApiErrorMessage } from '../services/apiClient'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -22,8 +23,8 @@ const Login = () => {
     try {
       await login(email, password)
       navigate('/dashboard')
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please try again.')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Login failed. Please try again.'))
     } finally {
       setLoading(false)
     }

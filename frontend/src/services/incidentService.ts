@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {
   Incident,
   IncidentCreate,
@@ -7,28 +6,11 @@ import {
   IncidentAssign,
   IncidentList,
 } from '../types/incident'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
+import { apiClient } from './apiClient'
 
 export const incidentService = {
-  async getToken(): Promise<string | null> {
-    return localStorage.getItem('token')
-  },
-
   async createIncident(data: IncidentCreate): Promise<Incident> {
-    const token = await this.getToken()
-    const response = await api.post<Incident>('/api/incidents', data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const response = await apiClient.post<Incident>('/api/incidents', data)
     return response.data
   },
 
@@ -40,23 +22,12 @@ export const incidentService = {
     assigned_to_id?: number
     archived?: boolean
   }): Promise<IncidentList> {
-    const token = await this.getToken()
-    const response = await api.get<IncidentList>('/api/incidents', {
-      params,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const response = await apiClient.get<IncidentList>('/api/incidents', { params })
     return response.data
   },
 
   async getIncident(id: number): Promise<Incident> {
-    const token = await this.getToken()
-    const response = await api.get<Incident>(`/api/incidents/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const response = await apiClient.get<Incident>(`/api/incidents/${id}`)
     return response.data
   },
 
@@ -64,12 +35,7 @@ export const incidentService = {
     id: number,
     data: IncidentUpdate
   ): Promise<Incident> {
-    const token = await this.getToken()
-    const response = await api.patch<Incident>(`/api/incidents/${id}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const response = await apiClient.patch<Incident>(`/api/incidents/${id}`, data)
     return response.data
   },
 
@@ -77,67 +43,32 @@ export const incidentService = {
     id: number,
     data: IncidentStatusUpdate
   ): Promise<Incident> {
-    const token = await this.getToken()
-    const response = await api.patch<Incident>(
+    const response = await apiClient.patch<Incident>(
       `/api/incidents/${id}/status`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      data
     )
     return response.data
   },
 
   async assignIncident(id: number, data: IncidentAssign): Promise<Incident> {
-    const token = await this.getToken()
-    const response = await api.patch<Incident>(
+    const response = await apiClient.patch<Incident>(
       `/api/incidents/${id}/assign`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      data
     )
     return response.data
   },
 
   async archiveIncident(id: number): Promise<Incident> {
-    const token = await this.getToken()
-    const response = await api.patch<Incident>(
-      `/api/incidents/${id}/archive`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
+    const response = await apiClient.patch<Incident>(`/api/incidents/${id}/archive`, {})
     return response.data
   },
 
   async unarchiveIncident(id: number): Promise<Incident> {
-    const token = await this.getToken()
-    const response = await api.patch<Incident>(
-      `/api/incidents/${id}/unarchive`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
+    const response = await apiClient.patch<Incident>(`/api/incidents/${id}/unarchive`, {})
     return response.data
   },
 
   async deleteIncident(id: number): Promise<void> {
-    const token = await this.getToken()
-    await api.delete(`/api/incidents/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    await apiClient.delete(`/api/incidents/${id}`)
   },
 }

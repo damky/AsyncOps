@@ -262,7 +262,7 @@ Week 8:     Phase 6 - Polish & Production Readiness
 
 ### Development Environment
 - Local machine with Docker Desktop
-- Node.js 18+ and Python 3.11+
+- Node.js 22.12+ and Python 3.11+
 - PostgreSQL 14+ (via Docker)
 - Git for version control
 - Code editor (VS Code recommended)

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { statusService } from '../services/statusService'
 import { userService } from '../services/userService'
 import { StatusUpdate, StatusUpdateList as StatusUpdateListResponse } from '../types/statusUpdate'
 import { User } from '../types/user'
 import StatusUpdateCard from './StatusUpdateCard'
 import FilterMenu from './FilterMenu'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface StatusUpdateListProps {
   onEdit?: (status: StatusUpdate) => void
@@ -34,26 +35,32 @@ const StatusUpdateList = ({ onEdit, onDelete }: StatusUpdateListProps) => {
     loadUsers()
   }, [])
 
-  const fetchStatusUpdates = async () => {
+  const fetchStatusUpdates = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const params: any = { page, limit }
-      if (authorFilter) params.author_id = authorFilter
+      const params: {
+        page: number
+        limit: number
+        author_id?: number
+      } = { page, limit }
+      if (authorFilter !== null) {
+        params.author_id = authorFilter
+      }
       
       const data: StatusUpdateListResponse = await statusService.getStatusUpdates(params)
       setStatusUpdates(data.items)
       setTotal(data.total)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load status updates')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to load status updates'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [authorFilter, limit, page])
 
   useEffect(() => {
     fetchStatusUpdates()
-  }, [page, authorFilter])
+  }, [fetchStatusUpdates])
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this status update?')) {
@@ -61,8 +68,8 @@ const StatusUpdateList = ({ onEdit, onDelete }: StatusUpdateListProps) => {
         await statusService.deleteStatusUpdate(id)
         fetchStatusUpdates()
         onDelete?.(id)
-      } catch (err: any) {
-        alert(err.response?.data?.detail || 'Failed to delete status update')
+      } catch (err: unknown) {
+        alert(getApiErrorMessage(err, 'Failed to delete status update'))
       }
     }
   }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { StatusUpdate, StatusUpdateCreate, StatusUpdateUpdate } from '../types/statusUpdate'
 import { statusService } from '../services/statusService'
+import { getApiErrorMessage } from '../services/apiClient'
 
 interface StatusUpdateFormProps {
   status?: StatusUpdate | null
@@ -63,8 +64,8 @@ const StatusUpdateForm = ({ status, onSuccess, onCancel }: StatusUpdateFormProps
         await statusService.createStatusUpdate(createData)
       }
       onSuccess?.()
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to save status update')
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to save status update'))
     } finally {
       setLoading(false)
     }
