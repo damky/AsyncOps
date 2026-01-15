@@ -110,9 +110,9 @@ Docs index:
 
 📦 Deployment
 	•	Dockerized services
-	•	CI/CD via GitHub Actions
-	•	Deployed to AWS ECS with RDS Postgres
-	•	Zero-downtime deploy strategy (basic rolling update)
+	•	Deployed to Railway (backend, frontend, worker, PostgreSQL)
+	•	See `docs/railway-deployment.md` for deployment guide
+	•	Auto-deploys on git push when connected to Railway
 
 ⸻
 
