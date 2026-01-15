@@ -103,7 +103,12 @@ This is a quick-start guide for deploying AsyncOps to Railway. For detailed inst
 
 4. **Add Database**
    ```bash
-   railway add postgresql
+   railway add --database postgres
+   ```
+   
+   Or with a custom name:
+   ```bash
+   railway add --database postgres --service asyncops-db
    ```
 
 5. **Deploy Services**

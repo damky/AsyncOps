@@ -52,7 +52,13 @@ This will:
 In Railway dashboard or via CLI:
 
 ```bash
-railway add postgresql
+railway add --database postgres
+```
+
+Or with a custom service name:
+
+```bash
+railway add --database postgres --service asyncops-db
 ```
 
 This automatically creates a PostgreSQL database and sets up connection environment variables.
