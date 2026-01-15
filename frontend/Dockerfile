@@ -3,6 +3,11 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Accept VITE_API_BASE_URL as build argument
+# Railway automatically passes environment variables as build args
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 # Copy package files
 COPY package*.json ./
 RUN npm ci
@@ -10,7 +15,7 @@ RUN npm ci
 # Copy application code
 COPY . .
 
-# Build application
+# Build application (Vite will use VITE_API_BASE_URL from environment)
 RUN npm run build
 
 # Production stage

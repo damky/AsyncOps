@@ -1,6 +1,23 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+// In production, VITE_API_BASE_URL must be set at build time
+// Only fallback to localhost in development
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? 'http://localhost:8000' : '')
+
+// Fail fast in production if API URL is not configured
+if (!API_BASE_URL && !import.meta.env.DEV) {
+  throw new Error(
+    'VITE_API_BASE_URL is not configured. Please set this environment variable in your Railway frontend service.'
+  )
+}
+
+// Debug logging (will be removed in production builds via tree-shaking if unused)
+if (import.meta.env.DEV) {
+  console.log('API Base URL:', API_BASE_URL)
+  console.log('VITE_API_BASE_URL env var:', import.meta.env.VITE_API_BASE_URL)
+}
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
