@@ -15,10 +15,7 @@ apiClient.interceptors.request.use((config) => {
     config.url?.includes('/api/auth/login') || config.url?.includes('/api/auth/register')
 
   if (token && !isAuthRoute) {
-    config.headers = {
-      ...config.headers,
-      Authorization: config.headers?.Authorization ?? `Bearer ${token}`,
-    }
+    config.headers.Authorization = config.headers.Authorization ?? `Bearer ${token}`
   }
 
   return config

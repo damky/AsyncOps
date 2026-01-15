@@ -23,13 +23,16 @@ describe('StatusUpdateCard', () => {
       id: 1,
       email: 'test@example.com',
       full_name: 'Test User',
-      role: 'member'
+      role: 'member' as const,
+      is_active: true,
+      created_at: '2024-01-15T10:00:00Z',
+      updated_at: '2024-01-15T10:00:00Z'
     }
   }
 
   it('renders status update information', () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' },
+      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' as const, is_active: true, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
       token: 'test-token',
       login: vi.fn(),
       logout: vi.fn(),
@@ -73,7 +76,7 @@ describe('StatusUpdateCard', () => {
 
   it('does not show edit and delete buttons when user is not the author', () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: 2, email: 'other@example.com', full_name: 'Other User', role: 'member' },
+      user: { id: 2, email: 'other@example.com', full_name: 'Other User', role: 'member' as const, is_active: true, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
       login: vi.fn(),
       logout: vi.fn(),
       token: 'test-token',
