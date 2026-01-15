@@ -51,7 +51,7 @@ describe('StatusUpdateCard', () => {
 
   it('shows edit and delete buttons when user is the author', () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' },
+      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' as const, is_active: true, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
       login: vi.fn(),
       logout: vi.fn(),
       token: 'test-token',
@@ -92,7 +92,7 @@ describe('StatusUpdateCard', () => {
 
   it('calls onEdit when edit button is clicked', async () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' },
+      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' as const, is_active: true, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
       login: vi.fn(),
       logout: vi.fn(),
       token: 'test-token',
@@ -119,7 +119,7 @@ describe('StatusUpdateCard', () => {
 
   it('calls onDelete when delete button is clicked', async () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' },
+      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' as const, is_active: true, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
       login: vi.fn(),
       logout: vi.fn(),
       token: 'test-token',
@@ -146,7 +146,7 @@ describe('StatusUpdateCard', () => {
 
   it('renders without tags when tags array is empty', () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' },
+      user: { id: 1, email: 'test@example.com', full_name: 'Test User', role: 'member' as const, is_active: true, created_at: '2024-01-15T10:00:00Z', updated_at: '2024-01-15T10:00:00Z' },
       login: vi.fn(),
       logout: vi.fn(),
       token: 'test-token',
