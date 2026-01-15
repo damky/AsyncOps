@@ -75,10 +75,13 @@ Background Jobs (Daily Summary worker)
 
 🧪 Testing & Quality
 	•	Unit tests for core business logic
+	•	API integration tests (pytest)
+	•	Frontend component tests (Vitest + React Testing Library)
 	•	API request validation
 	•	TypeScript strict mode enabled
 	•	Linting + formatting enforced in CI
 	•	Manual test checklist in testing/TESTING.md
+	•	See backend/tests/README.md and frontend/src/test/README.md for test setup
 
 ⸻
 

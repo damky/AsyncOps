@@ -392,18 +392,31 @@ Backend tests:
 ```bash
 # Inside backend container or local environment
 cd backend
-pytest
-pytest tests/ -v  # Verbose
-pytest tests/test_auth.py  # Specific test file
+pytest                    # Run all tests
+pytest -v                 # Verbose output
+pytest tests/test_auth.py # Specific test file
+pytest --cov=app          # With coverage report
 ```
+
+**Test Setup:**
+- Uses in-memory SQLite database (no external DB required)
+- See `backend/tests/README.md` for detailed testing guide
+- Test fixtures available: `test_user`, `test_admin`, `auth_headers`, `admin_headers`
 
 Frontend tests:
 
 ```bash
 cd frontend
-npm test
-npm run test:coverage
+npm test                  # Run all tests
+npm test -- --watch       # Watch mode
+npm run test:ui           # Interactive UI
+npm run test:coverage     # Coverage report
 ```
+
+**Test Setup:**
+- Uses Vitest (Vite-compatible test runner)
+- React Testing Library for component testing
+- See `frontend/src/test/README.md` for detailed testing guide
 
 ### 3. Code Quality
 
