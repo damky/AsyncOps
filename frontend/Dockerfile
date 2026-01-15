@@ -15,6 +15,9 @@ RUN npm ci
 # Copy application code
 COPY . .
 
+# Verify VITE_API_BASE_URL is set (for debugging)
+RUN if [ -z "$VITE_API_BASE_URL" ]; then echo "WARNING: VITE_API_BASE_URL is not set!"; else echo "VITE_API_BASE_URL is set to: $VITE_API_BASE_URL"; fi
+
 # Build application (Vite will use VITE_API_BASE_URL from environment)
 RUN npm run build
 
