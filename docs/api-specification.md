@@ -1230,7 +1230,8 @@ POST /api/summaries/generate
 **Headers**: `Authorization: Bearer <token>`
 
 **Query Parameters**:
-- `summary_date` (ISO date string, optional)
+- `summary_date` (ISO date string, optional) - Date for the summary. Defaults to today if not provided.
+- `force_update` (boolean, optional, default: false) - If true and a summary already exists for the date, update it with latest data. If false, returns existing summary without updating.
 
 **Response**: `201 Created`
 ```json
@@ -1284,6 +1285,12 @@ POST /api/summaries/generate
   }
 }
 ```
+
+**Behavior**:
+- If a summary already exists for the specified date:
+  - If `force_update=true`: Updates the existing summary with latest data from the last 24 hours
+  - If `force_update=false` (default): Returns the existing summary without modification
+- If no summary exists for the date: Creates a new summary
 
 **Errors**:
 - `403 Forbidden` - User is not an admin

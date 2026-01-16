@@ -117,13 +117,18 @@ Or create a new service pointing to the `frontend/` directory.
 
 ### 6b. Configure Frontend Environment Variables
 
+**⚠️ CRITICAL**: `VITE_API_BASE_URL` must be set **before** the first build. Vite embeds environment variables at build time, so this must be configured in Railway before deploying.
+
 In Railway dashboard, go to your frontend service → Variables tab, add:
 
 ```
 VITE_API_BASE_URL=https://your-backend-service.railway.app
 ```
 
-**Important**: Replace `your-backend-service.railway.app` with your actual backend service URL (found in Railway dashboard under your backend service → Settings → Domains).
+**Important**: 
+- Replace `your-backend-service.railway.app` with your actual backend service URL (found in Railway dashboard under your backend service → Settings → Domains).
+- **No trailing slash** - the URL should end with the domain, not `/api` or `/`.
+- If this variable is missing, the app will try to connect to `localhost`, which will trigger Chrome's Local Network Access permission prompt and won't work in production.
 
 ## Step 7: Deploy Worker Service
 

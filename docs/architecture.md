@@ -494,6 +494,8 @@ graph TB
 
 ## Deployment Architecture
 
+**Note**: The architecture below describes the planned AWS deployment. The application is currently deployed to **Railway** (see `docs/railway-deployment.md` for details). The AWS architecture remains the target for future scaling.
+
 ### AWS Infrastructure
 
 ```mermaid

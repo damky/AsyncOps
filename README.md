@@ -110,8 +110,10 @@ Docs index:
 
 📦 Deployment
 	•	Dockerized services
-	•	Deployed to Railway (backend, frontend, worker, PostgreSQL)
+	•	✅ **Deployed to Railway** (backend, frontend, worker, PostgreSQL)
+	•	✅ **Production-ready**: All services running and operational
 	•	See `docs/railway-deployment.md` for deployment guide
+	•	See `DEPLOYMENT_SUCCESS.md` for deployment status and URLs
 	•	Auto-deploys on git push when connected to Railway
 
 ⸻
