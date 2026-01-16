@@ -103,6 +103,9 @@ const DailySummaryList = forwardRef<DailySummaryListRef, DailySummaryListProps>(
                 setStartDate(e.target.value)
                 setPage(1)
               }}
+              autoComplete="off"
+              data-lpignore="true"
+              data-form-type="other"
               style={{
                 width: '100%',
                 padding: '0.5rem',
@@ -123,6 +126,9 @@ const DailySummaryList = forwardRef<DailySummaryListRef, DailySummaryListProps>(
                 setEndDate(e.target.value)
                 setPage(1)
               }}
+              autoComplete="off"
+              data-lpignore="true"
+              data-form-type="other"
               style={{
                 width: '100%',
                 padding: '0.5rem',
