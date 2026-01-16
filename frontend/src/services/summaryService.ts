@@ -20,12 +20,17 @@ export const summaryService = {
     return response.data
   },
 
-  async generateSummary(summaryDate?: string): Promise<DailySummary> {
+  async generateSummary(summaryDate?: string, forceUpdate: boolean = true): Promise<DailySummary> {
+    const params: Record<string, string | boolean> = {}
+    if (summaryDate) {
+      params.summary_date = summaryDate
+    }
+    params.force_update = forceUpdate
     const response = await apiClient.post<DailySummary>(
       '/api/summaries/generate',
       {},
       {
-        params: summaryDate ? { summary_date: summaryDate } : undefined,
+        params: Object.keys(params).length > 0 ? params : undefined,
       }
     )
     return response.data

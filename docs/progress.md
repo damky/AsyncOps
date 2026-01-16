@@ -174,9 +174,13 @@ Implemented decision logging with full audit trail functionality:
 - Daily summary list and detail endpoints added
 - Frontend types, service, list, and detail page implemented
 - Dashboard navigation updated for summaries
+- ✅ **Force update functionality**: Added `force_update` parameter to regenerate existing summaries with latest data
+- ✅ **Frontend refresh mechanism**: Implemented ref-based refresh in DailySummaryList component
+- ✅ **Improved logging**: Added comprehensive logging for debugging summary generation
+- ✅ **Timestamp updates**: `generated_at` timestamp now updates when summaries are regenerated
 
 ### Status
-**Phase 5 is complete!** Daily summaries are migrated, scheduled, and verified.
+**Phase 5 is complete!** Daily summaries are migrated, scheduled, and verified. Force update functionality allows admins to refresh summaries with latest data.
 
 ---
 
@@ -198,6 +202,8 @@ Implemented decision logging with full audit trail functionality:
 - ✅ Frontend component test example (StatusUpdateCard)
 - ✅ **Production deployment to Railway** (backend, frontend, worker, PostgreSQL)
 - ✅ Daily summary generation with force_update parameter
+- ✅ Frontend refresh mechanism for daily summary list
+- ✅ Comprehensive logging for summary generation debugging
 - ✅ All services deployed and running in production
 
 ### Status

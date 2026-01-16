@@ -21,11 +21,22 @@ router = APIRouter()
 )
 async def generate_daily_summary(
     summary_date: Optional[date] = Query(None),
+    force_update: bool = Query(False, description="Force update existing summary with latest data"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_admin)
 ):
-    """Generate a daily summary for testing."""
-    return create_daily_summary(db, summary_date=summary_date)
+    """Generate a daily summary for testing. If a summary already exists for the date,
+    it will be updated with latest data if force_update=True, otherwise the existing summary is returned."""
+    import logging
+    logger = logging.getLogger(__name__)
+    # FastAPI should handle boolean parsing, but ensure it's a boolean
+    # Handle both bool and string representations
+    if isinstance(force_update, str):
+        force_update_bool = force_update.lower() in ('true', '1', 'yes', 'on')
+    else:
+        force_update_bool = bool(force_update)
+    logger.info(f"generate_daily_summary called: summary_date={summary_date}, force_update={force_update} (type: {type(force_update)}) -> {force_update_bool}")
+    return create_daily_summary(db, summary_date=summary_date, force_update=force_update_bool)
 
 
 @router.get("", response_model=DailySummaryList)

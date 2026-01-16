@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { summaryService } from '../services/summaryService'
 import {
   DailySummaryList as DailySummaryListType,
@@ -11,46 +11,57 @@ interface DailySummaryListProps {
   onView?: (summary: DailySummaryListItem) => void
 }
 
-const DailySummaryList = ({ onView }: DailySummaryListProps) => {
-  const [summaries, setSummaries] = useState<DailySummaryListItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [page, setPage] = useState(1)
-  const [total, setTotal] = useState(0)
-  const [startDate, setStartDate] = useState<string>('')
-  const [endDate, setEndDate] = useState<string>('')
-  const limit = 20
+export interface DailySummaryListRef {
+  refresh: () => void
+}
 
-  const fetchSummaries = useCallback(async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const params: {
-        page: number
-        limit: number
-        start_date?: string
-        end_date?: string
-      } = { page, limit }
-      if (startDate) {
-        params.start_date = startDate
+const DailySummaryList = forwardRef<DailySummaryListRef, DailySummaryListProps>(
+  ({ onView }, ref) => {
+    const [summaries, setSummaries] = useState<DailySummaryListItem[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
+    const [page, setPage] = useState(1)
+    const [total, setTotal] = useState(0)
+    const [startDate, setStartDate] = useState<string>('')
+    const [endDate, setEndDate] = useState<string>('')
+    const limit = 20
+
+    const fetchSummaries = useCallback(async () => {
+      setLoading(true)
+      setError('')
+      try {
+        const params: {
+          page: number
+          limit: number
+          start_date?: string
+          end_date?: string
+        } = { page, limit }
+        if (startDate) {
+          params.start_date = startDate
+        }
+        if (endDate) {
+          params.end_date = endDate
+        }
+
+        const data: DailySummaryListType = await summaryService.getSummaries(params)
+        setSummaries(data.items)
+        setTotal(data.total)
+      } catch (err: unknown) {
+        setError(getApiErrorMessage(err, 'Failed to load daily summaries'))
+      } finally {
+        setLoading(false)
       }
-      if (endDate) {
-        params.end_date = endDate
-      }
+    }, [endDate, limit, page, startDate])
 
-      const data: DailySummaryListType = await summaryService.getSummaries(params)
-      setSummaries(data.items)
-      setTotal(data.total)
-    } catch (err: unknown) {
-      setError(getApiErrorMessage(err, 'Failed to load daily summaries'))
-    } finally {
-      setLoading(false)
-    }
-  }, [endDate, limit, page, startDate])
+    useEffect(() => {
+      fetchSummaries()
+    }, [fetchSummaries])
 
-  useEffect(() => {
-    fetchSummaries()
-  }, [fetchSummaries])
+    useImperativeHandle(ref, () => ({
+      refresh: () => {
+        fetchSummaries()
+      },
+    }))
 
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
@@ -203,6 +214,9 @@ const DailySummaryList = ({ onView }: DailySummaryListProps) => {
       )}
     </div>
   )
-}
+  }
+)
+
+DailySummaryList.displayName = 'DailySummaryList'
 
 export default DailySummaryList

@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import DailySummaryList from '../components/DailySummaryList'
+import DailySummaryList, { DailySummaryListRef } from '../components/DailySummaryList'
 import { summaryService } from '../services/summaryService'
 import { getApiErrorMessage } from '../services/apiClient'
 import {
@@ -16,6 +16,7 @@ const DailySummaries = () => {
   const [summaryError, setSummaryError] = useState('')
   const [generatingSummary, setGeneratingSummary] = useState(false)
   const [generateMessage, setGenerateMessage] = useState('')
+  const summaryListRef = useRef<DailySummaryListRef>(null)
 
   const handleView = async (summary: DailySummaryListItem) => {
     setLoadingSummary(true)
@@ -44,8 +45,10 @@ const DailySummaries = () => {
     setSummaryError('')
     setGenerateMessage('')
     try {
-      const summary = await summaryService.generateSummary()
-      setGenerateMessage(`Generated summary for ${formatDate(summary.summary_date)}.`)
+      const summary = await summaryService.generateSummary(undefined, true)
+      setGenerateMessage(`Summary generated/updated for ${formatDate(summary.summary_date)}.`)
+      // Refresh the list to show the new/updated summary
+      summaryListRef.current?.refresh()
     } catch (err: unknown) {
       setSummaryError(getApiErrorMessage(err, 'Failed to generate daily summary'))
     } finally {
@@ -279,7 +282,7 @@ const DailySummaries = () => {
             {loadingSummary ? (
               <div style={{ padding: '2rem', textAlign: 'center' }}>Loading summary...</div>
             ) : (
-              <DailySummaryList onView={handleView} />
+              <DailySummaryList ref={summaryListRef} onView={handleView} />
             )}
           </>
         )}
